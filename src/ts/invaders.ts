@@ -1,6 +1,8 @@
-import { columns, state, ROW_LENGTH, COLUMN_LENGTH } from './app';
-import { random } from './utils';
 import Invader from './invader';
+import { container, columns, state, ROW_LENGTH, COLUMN_LENGTH } from './app';
+import { random, rectOf } from './utils';
+
+export let interval: number;
 
 const speed = {
     slow: 1500,
@@ -14,7 +16,7 @@ const createMatrix = (): Matrix => {
     const matrix: any[] = [];
     let arr;
 
-    for (let i = 0; i < COLUMN_LENGTH - 1; i++) {
+    for (let i = 0; i < COLUMN_LENGTH; i++) {
         arr = [];
 
         for (let j = 0; j < ROW_LENGTH; j++) {
@@ -27,8 +29,42 @@ const createMatrix = (): Matrix => {
     return matrix;
 };
 
+interface Dimensions {
+    right: number;
+    left: number;
+}
+
 class Invaders {
     matrix: Matrix = createMatrix();
+    invaderElements = document.getElementById('invader-column-list') as HTMLElement; // prettier-ignore
+    containerDims: Dimensions;
+    invaderListDims: Dimensions;
+    isRight = true;
+    isLeft = false;
+
+    constructor () {
+        this.containerDims = rectOf(container);
+        this.invaderListDims = rectOf(this.invaderElements);
+    }
+
+    moveRight = (): void => {
+        console.log('right');
+    };
+
+    moveLeft = (): void => {
+        console.log('left');
+    };
+
+    moveDown = (): void => {
+        console.log('down');
+    };
+
+    updateMoving = (): void => {
+        if (!state.isPaused) {
+        }
+
+        requestAnimationFrame(this.updateMoving);
+    };
 
     updateBottom = (): any[] => {
         return this.matrix.map(column => {
@@ -36,10 +72,10 @@ class Invaders {
         });
     };
 
-    randomAttack = (): void => {
+    updateAttack = (): void => {
         if (!state.isPaused) {
             const bottomInvaders: Invader[] = this.updateBottom();
-            const idx = random(0, COLUMN_LENGTH - 2);
+            const idx = random(0, COLUMN_LENGTH - 1);
 
             if (bottomInvaders[idx]) {
                 bottomInvaders[idx].fire();
@@ -55,11 +91,12 @@ class Invaders {
     };
 
     update = (): void => {
-        setInterval(this.randomAttack, speed.normal);
+        this.updateMoving();
+        interval = setInterval(this.updateAttack, speed.normal);
     };
 
     render = (): void => {
-        const cols = [...columns].slice(0, -1);
+        const cols = [...columns];
         let children: Element[];
 
         this.matrix.forEach((invaders, i) => {

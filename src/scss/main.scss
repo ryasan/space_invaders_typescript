@@ -65,17 +65,19 @@ ul {
 }
 
 #earth {
-    align-items: center;
+    align-items: flex-start;
     display: flex;
     flex: 1;
     flex-direction: column;
+    justify-content: space-between;
     overflow: hidden;
     width: 100%;
 }
 
 #invader-column-list {
     display: flex;
-    flex: 1;
+    margin: 0;
+    padding: 0;
     position: relative;
 }
 

@@ -12,7 +12,7 @@ export const LEFT_ARROW = 37,
              SPACE_BAR = 32,
              SHIP_WIDTH = 90,
              BULLET_WIDTH = 6,
-             COLUMN_LENGTH = 11,
+             COLUMN_LENGTH = 10,
              ROW_LENGTH = 5;
 
 // prettier-ignore
@@ -53,7 +53,7 @@ const initHTML = () => {
 
             <div id="earth">
                 <ul id="invader-column-list">
-                    ${`<li class="invader-column"></li>`.repeat(11)}
+                    ${`<li class="invader-column"></li>`.repeat(10)}
                 </ul>
                 <div id="player-zone">
                     <div id="gun"></div>
