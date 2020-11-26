@@ -2,14 +2,12 @@ import InvaderBullet from './invader-bullet';
 
 class Invader {
     node = document.createElement('div');
-    bullets: InvaderBullet[];
-    bullet: InvaderBullet | null;
+    bullets: InvaderBullet[] = [];
+    bullet: InvaderBullet | null = null;
     coordinates: [number, number];
 
     constructor (numA: number, numB: number) {
         this.node.className = 'invader';
-        this.bullets = [];
-        this.bullet = null;
         this.coordinates = [numA, numB];
     }
 

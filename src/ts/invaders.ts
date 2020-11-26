@@ -2,8 +2,6 @@ import { columns, state, ROW_LENGTH, COLUMN_LENGTH } from './app';
 import { random } from './utils';
 import Invader from './invader';
 
-export let interval: number;
-
 const speed = {
     slow: 1500,
     normal: 1000,
@@ -30,11 +28,7 @@ const createMatrix = (): Matrix => {
 };
 
 class Invaders {
-    matrix: Matrix;
-
-    constructor () {
-        this.matrix = createMatrix();
-    }
+    matrix: Matrix = createMatrix();
 
     updateBottom = (): any[] => {
         return this.matrix.map(column => {

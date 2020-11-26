@@ -10,13 +10,11 @@ class Player {
     node = document.createElement('div');
     score = document.getElementById('score-count') as HTMLElement;
     gun = document.getElementById('gun') as HTMLElement;
-    bullets: PlayerBullet[];
-    bullet: PlayerBullet | null;
+    bullets: PlayerBullet[] = [];
+    bullet: PlayerBullet | null = null;
 
     constructor () {
         this.node.id = 'player';
-        this.bullets = [];
-        this.bullet = null;
     }
 
     moveLeft = (): void => {
