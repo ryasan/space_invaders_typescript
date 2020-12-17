@@ -91,6 +91,7 @@ ul {
 .invader {
     @include base-ship;
 
+    background: url('../assets/invader.gif') center center/cover no-repeat;
     position: relative;
 
     &:not(:first-child) {
@@ -107,6 +108,7 @@ ul {
 #player {
     @include base-ship;
 
+    background: url('../assets/player.png') center center/cover no-repeat;
     bottom: 0;
     left: 499px;
     position: absolute;

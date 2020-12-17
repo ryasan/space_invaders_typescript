@@ -1,5 +1,5 @@
 import { loadGame, state, btnGroup } from './app';
-import { interval } from './invaders';
+import { intervals } from './invaders';
 
 const Button = (text: string, id?: string) => {
     const btn = document.createElement('button');
@@ -24,7 +24,8 @@ class Controls {
     constructor () {
         decorateWide(this.resetBtn);
         this.resetBtn.addEventListener('click', () => {
-            clearInterval(interval);
+            if (intervals.attack !== null) clearInterval(intervals.attack);
+            if (intervals.moveDown !== null) clearInterval(intervals.moveDown);
             loadGame();
         });
 

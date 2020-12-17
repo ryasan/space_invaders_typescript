@@ -1,8 +1,18 @@
-import Invader from './invader';
-import { container, columns, state, ROW_LENGTH, COLUMN_LENGTH } from './app';
+import {
+    columns,
+    state,
+    earth,
+    ROW_LENGTH,
+    COLUMN_LENGTH,
+    SHIP_HEIGHT
+} from './app';
 import { random, rectOf } from './utils';
+import Invader from './invader';
 
-export let interval: number;
+export const intervals = {
+    attack: null as number | null,
+    moveDown: null as number | null
+};
 
 const speed = {
     slow: 1500,
@@ -32,35 +42,55 @@ const createMatrix = (): Matrix => {
 interface Dimensions {
     right: number;
     left: number;
+    x: number;
+    y: number;
 }
+
+const RIGHT = 'RIGHT';
+const LEFT = 'LEFT';
 
 class Invaders {
     matrix: Matrix = createMatrix();
     invaderElements = document.getElementById('invader-column-list') as HTMLElement; // prettier-ignore
-    containerDims: Dimensions;
-    invaderListDims: Dimensions;
-    isRight = true;
-    isLeft = false;
+    earthDims: Dimensions;
+    direction = RIGHT;
+    x = 0;
+    y = 0;
 
     constructor () {
-        this.containerDims = rectOf(container);
-        this.invaderListDims = rectOf(this.invaderElements);
+        this.earthDims = rectOf(earth);
     }
 
+    getDimensions = (): Dimensions => {
+        return rectOf(this.invaderElements);
+    };
+
+    checkWall = (): void => {
+        const { right, left } = this.getDimensions();
+        if (right >= this.earthDims.right) this.direction = LEFT;
+        if (left <= this.earthDims.left) this.direction = RIGHT;
+    };
+
     moveRight = (): void => {
-        console.log('right');
+        this.invaderElements.style.right = `${(this.x -= 1)}px`;
+        this.checkWall();
     };
 
     moveLeft = (): void => {
-        console.log('left');
+        this.invaderElements.style.right = `${(this.x += 1)}px`;
+        this.checkWall();
     };
 
     moveDown = (): void => {
-        console.log('down');
+        if (!state.isPaused) {
+            this.invaderElements.style.top = `${(this.y += SHIP_HEIGHT)}px`;
+        }
     };
 
     updateMoving = (): void => {
         if (!state.isPaused) {
+            if (this.direction === RIGHT) this.moveRight();
+            if (this.direction === LEFT) this.moveLeft();
         }
 
         requestAnimationFrame(this.updateMoving);
@@ -92,7 +122,8 @@ class Invaders {
 
     update = (): void => {
         this.updateMoving();
-        interval = setInterval(this.updateAttack, speed.normal);
+        intervals.attack = setInterval(this.updateAttack, speed.normal);
+        intervals.moveDown = setInterval(this.moveDown, 10000);
     };
 
     render = (): void => {

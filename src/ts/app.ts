@@ -11,6 +11,7 @@ export const LEFT_ARROW = 37,
              DOWN_ARROW = 40,
              SPACE_BAR = 32,
              SHIP_WIDTH = 90,
+             SHIP_HEIGHT = 50,
              BULLET_WIDTH = 6,
              COLUMN_LENGTH = 10,
              ROW_LENGTH = 5;
@@ -23,7 +24,8 @@ export let player: Player,
            container: HTMLElement,
            columns: HTMLCollection,
            btnGroup: HTMLElement,
-           earth: HTMLElement;
+           earth: HTMLElement,
+           lives: HTMLCollection; 
 
 export const center = (SHIP_WIDTH / 2) - (BULLET_WIDTH / 2); // prettier-ignore
 

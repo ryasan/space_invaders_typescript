@@ -12,6 +12,7 @@ class Player {
     gun = document.getElementById('gun') as HTMLElement;
     bullets: PlayerBullet[] = [];
     bullet: PlayerBullet | null = null;
+    onCoolDown = false;
 
     constructor () {
         this.node.id = 'player';
@@ -53,9 +54,11 @@ class Player {
     };
 
     update = (): void => {
-        if (this.bullet) {
+        if (this.bullet && !this.onCoolDown) {
             this.gun.appendChild(this.bullet.element());
             this.bullet.update();
+            this.onCoolDown = true;
+            sleep(250).then(() => (this.onCoolDown = false));
         }
     };
 
