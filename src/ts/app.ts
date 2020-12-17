@@ -24,8 +24,7 @@ export let player: Player,
            container: HTMLElement,
            columns: HTMLCollection,
            btnGroup: HTMLElement,
-           earth: HTMLElement,
-           lives: HTMLCollection; 
+           earth: HTMLElement
 
 export const center = (SHIP_WIDTH / 2) - (BULLET_WIDTH / 2); // prettier-ignore
 
@@ -49,7 +48,7 @@ const initHTML = () => {
                 </div>
                 <div id="lives">
                     <span>LIVES:</span>
-                    <ul class="lives-count"></ul>
+                    <ul id="lives-list"></ul>
                 </div>
             </div>
 

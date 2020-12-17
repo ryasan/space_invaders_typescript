@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600&display=swap');
 @import './theme';
 
 $col-width: 100px;
@@ -129,6 +130,21 @@ ul {
     z-index: 999;
 }
 
+#lives {
+    display: flex;
+}
+
+#lives-list {
+    display: flex;
+}
+
+.life {
+    background: url('../assets/player.png') center center/contain no-repeat;
+    height: 30px;
+    margin-left: 10px;
+    width: 40px;
+}
+
 #btn-group {
     display: flex;
     justify-content: space-between;
@@ -137,10 +153,11 @@ ul {
 
 .btn {
     background: 0;
-    border: 1px solid var(--cyan-400);
+    border: 2px solid var(--cyan-400);
     border-radius: 3px;
     color: var(--cyan-400);
     cursor: pointer;
+    font-weight: 600;
     height: 50px;
     width: 50px;
 

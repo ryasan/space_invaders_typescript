@@ -3,13 +3,14 @@ import { center, state } from './app';
 import { sleep } from './utils';
 
 class Player {
-    lives = 3;
+    livesCount = 3;
     scoreCount = 0;
     x = 500;
     moveID = 0;
     node = document.createElement('div');
     score = document.getElementById('score-count') as HTMLElement;
     gun = document.getElementById('gun') as HTMLElement;
+    livesList = document.getElementById('lives-list') as HTMLElement;
     bullets: PlayerBullet[] = [];
     bullet: PlayerBullet | null = null;
     onCoolDown = false;
@@ -66,8 +67,10 @@ class Player {
         return this.node;
     };
 
+    // prettier-ignore
     render = (): void => {
-        (document.getElementById('player-zone') as HTMLElement).appendChild(this.node) // prettier-ignore
+        this.livesList.innerHTML = '<div class="life"></div>'.repeat(this.livesCount);
+        (document.getElementById('player-zone') as HTMLElement).appendChild(this.node)
     };
 }
 
