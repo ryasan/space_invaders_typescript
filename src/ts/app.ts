@@ -2,7 +2,7 @@ import 'regenerator-runtime/runtime';
 
 import Player from './player';
 import Invaders from './invaders';
-import State from './state';
+import State, { Difficulty } from './state';
 import Controls from './controls';
 
 // prettier-ignore
@@ -47,13 +47,13 @@ const initStartMenu = () => {
                 <h3 class="difficulty__title">Select difficulty</h3>
                 <ul class="menu__difficulty-list">
                     <li class="menu__difficulty">
-                        <a data-mode="slow">Easy</a>
+                        <a data-mode="easy">Easy</a>
                     </li>
                     <li class="menu__difficulty">
                         <a data-mode="normal">Normal</a>
                     </li>
                     <li class="menu__difficulty">
-                        <a data-mode="fast">Hard</a>
+                        <a data-mode="hard">Hard</a>
                     </li>
                 </ul>
             </div>
@@ -99,8 +99,6 @@ const initGame = () => {
     btnGroup = document.getElementById('btn-group') as HTMLElement;
     earth = document.getElementById('earth') as HTMLElement;
 };
-
-type Difficulty = 'slow' | 'normal' | 'fast';
 
 export const loadNewGame = (difficulty: Difficulty): void => {
     initGame();

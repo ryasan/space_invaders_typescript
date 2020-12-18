@@ -24,9 +24,10 @@ class Controls {
     constructor () {
         decorateWide(this.resetBtn);
         this.resetBtn.addEventListener('click', () => {
+            console.log('test')
             if (intervals.attack !== null) clearInterval(intervals.attack);
             if (intervals.moveDown !== null) clearInterval(intervals.moveDown);
-            loadNewGame();
+            loadNewGame(state.difficulty);
         });
 
         decorateWide(this.playBtn);

@@ -116,7 +116,10 @@ class Invaders {
 
     update = (): void => {
         this.updateMoving();
-        intervals.attack = setInterval(this.updateAttack, state.difficulty);
+        intervals.attack = setInterval(
+            this.updateAttack,
+            state.speed[state.difficulty]
+        );
         intervals.moveDown = setInterval(this.moveDown, 10000);
     };
 
