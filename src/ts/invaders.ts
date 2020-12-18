@@ -14,12 +14,6 @@ export const intervals = {
     moveDown: null as number | null
 };
 
-const speed = {
-    slow: 1500,
-    normal: 1000,
-    fast: 500
-};
-
 type Matrix = Invaders[][];
 
 const createMatrix = (): Matrix => {
@@ -122,7 +116,7 @@ class Invaders {
 
     update = (): void => {
         this.updateMoving();
-        intervals.attack = setInterval(this.updateAttack, speed.normal);
+        intervals.attack = setInterval(this.updateAttack, state.difficulty);
         intervals.moveDown = setInterval(this.moveDown, 10000);
     };
 

@@ -37,7 +37,38 @@ const onKeydown = (e: KeyboardEvent): void => {
     }
 };
 
-const initHTML = () => {
+const initStartMenu = () => {
+    document.body.innerHTML = `
+        <div class="menu">
+            <h1 class="menu__title">
+                Space Invaders
+            </h1>
+            <div class="menu__difficulty-container">
+                <h3 class="difficulty__title">Select difficulty</h3>
+                <ul class="menu__difficulty-list">
+                    <li class="menu__difficulty">
+                        <a data-mode="slow">Easy</a>
+                    </li>
+                    <li class="menu__difficulty">
+                        <a data-mode="normal">Normal</a>
+                    </li>
+                    <li class="menu__difficulty">
+                        <a data-mode="fast">Hard</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    `;
+
+    [...document.getElementsByClassName('menu__difficulty')].forEach(node =>
+        node.addEventListener('click', (e: Event) => {
+            const { mode } = (e.target as HTMLElement).dataset;
+            loadNewGame(mode as Difficulty);
+        })
+    );
+};
+
+const initGame = () => {
     document.body.innerHTML = `
         <div id="container">
             <div id="header">
@@ -69,10 +100,12 @@ const initHTML = () => {
     earth = document.getElementById('earth') as HTMLElement;
 };
 
-export const loadGame = (): void => {
-    initHTML();
+type Difficulty = 'slow' | 'normal' | 'fast';
 
-    state = new State();
+export const loadNewGame = (difficulty: Difficulty): void => {
+    initGame();
+
+    state = new State(difficulty);
 
     controls = new Controls();
     controls.render();
@@ -88,4 +121,4 @@ export const loadGame = (): void => {
     window.addEventListener('blur', controls.pause);
 };
 
-window.addEventListener('load', loadGame);
+window.addEventListener('load', initStartMenu);

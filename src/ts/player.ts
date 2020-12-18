@@ -19,6 +19,13 @@ class Player {
         this.node.id = 'player';
     }
 
+    die = (): void => {
+        this.livesCount--;
+        this.node.remove();
+        this.livesList.removeChild(this.livesList.childNodes[0]);
+        // if no more lives end game
+    };
+
     moveLeft = (): void => {
         this.stopMoving();
         if (this.node.offsetLeft > 0 && !state.isPaused) {

@@ -20,7 +20,7 @@ class InvaderBullet {
         if (player.element()) {
             if (checkCollision(rectOf(this.node), rectOf(player.element()))) {
                 this.remove();
-                player.element().remove();
+                player.die();
             }
             if (this.node.offsetTop >= earth.offsetHeight) {
                 this.remove();
