@@ -9,6 +9,8 @@ import {
 import { random, rectOf } from './utils';
 import Invader from './invader';
 
+// TODO - Add game ender when invaders reach bottom
+
 export const intervals = {
     attack: null as number | null,
     moveDown: null as number | null

@@ -1,4 +1,11 @@
-import { center, earth, state, player, SHIP_HEIGHT } from './app';
+import {
+    center,
+    earth,
+    state,
+    player,
+    SHIP_HEIGHT,
+    deathObserver
+} from './app';
 import { rectOf, checkCollision } from './utils';
 
 class InvaderBullet {
@@ -13,6 +20,8 @@ class InvaderBullet {
         this.bullets = bullets;
         this.x = x;
         this.y = y;
+
+        deathObserver.subscribe(this.remove);
     }
 
     remove = (): void => {
@@ -24,7 +33,7 @@ class InvaderBullet {
         if (player.element()) {
             if (checkCollision(rectOf(this.node), rectOf(player.element()))) {
                 this.remove();
-                player.die();
+                deathObserver.notify();
             }
             if (this.y >= earth.offsetHeight + SHIP_HEIGHT) {
                 this.remove();

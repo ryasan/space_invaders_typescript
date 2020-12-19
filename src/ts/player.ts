@@ -1,7 +1,6 @@
 import PlayerBullet from './player-bullet';
 import { state, score, livesList, deathObserver } from './app';
 import { rectOf, sleep } from './utils';
-// import { deathObserver } from './observers'
 
 class Player {
     livesCount = 3;
@@ -16,18 +15,18 @@ class Player {
 
     constructor () {
         this.node.id = 'player';
-        // deathObserver.subscribe(this.endGame);
+        deathObserver.subscribe(this.die);
     }
 
     die = (): void => {
-        deathObserver.notify();
-        // this.livesCount--;
-        // this.node.remove();
-        // livesList.removeChild(livesList.childNodes[0]);
-    };
-
-    endGame = (ctx: any): void => {
-        // do something
+        if (livesList.lastElementChild) {
+            livesList.removeChild(livesList.lastElementChild);
+            this.livesCount--;
+            this.node.remove();
+        }
+        if (!this.livesCount) {
+            state.endGame();
+        }
     };
 
     moveLeft = (): void => {

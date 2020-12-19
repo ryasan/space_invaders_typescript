@@ -3,7 +3,8 @@ import {
     state,
     btnGroup,
     loadStartMenu,
-    deathObserver
+    deathObserver,
+    player
 } from './app';
 import { intervals } from './invaders';
 
@@ -57,6 +58,9 @@ class Controls {
             state.setPause(false);
             btnGroup.appendChild(this.pauseBtn);
             btnGroup.removeChild(this.playBtn);
+        }
+        if (!document.contains(player.element()) && !state.gameIsOver) {
+            player.render();
         }
     };
 

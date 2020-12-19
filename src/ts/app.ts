@@ -44,6 +44,7 @@ const onKeydown = (e: KeyboardEvent): void => {
 export const loadStartMenu = (): void => {
     document.body.innerHTML = `
         <div id="menu">
+            <div class="menu__gif"></div>
             <h1 class="menu__title">
                 Space Invaders
             </h1>
@@ -92,8 +93,6 @@ const loadEnvironment = (): void => {
                 </ul>
                 <div id="player-zone"></div>
             </div>
-
-            <!-- <div id="modal" class="modal"></div> -->
         </div>
     `;
 
@@ -105,10 +104,36 @@ const loadEnvironment = (): void => {
     livesList = document.getElementById('lives-list') as HTMLElement;
 };
 
+export const loadGameOverModal = () => {
+    container.innerHTML += `
+            <div id="modal" class="modal">
+                <div class="modal__inner">
+                    <h1 class="modal__title">GAME OVER!</h1>
+                    <button id="play-again-btn" class="btn">
+                        PLAY AGAIN
+                    </button>
+                    <button id="main-menu-btn" class="btn">
+                        MAIN MENU
+                    </button>
+                </div>
+            </div>
+        `;
+
+    (document.getElementById('play-again-btn') as HTMLElement).addEventListener(
+        'click',
+        controls.reset
+    );
+    (document.getElementById('main-menu-btn') as HTMLElement).addEventListener(
+        'click',
+        loadStartMenu
+    );
+};
+
 export const loadNewGame = (difficulty: Difficulty): void => {
     loadEnvironment();
 
     state = new State(difficulty);
+
     deathObserver = new Observer();
 
     controls = new Controls();

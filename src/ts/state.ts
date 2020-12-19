@@ -1,3 +1,5 @@
+import { loadGameOverModal } from './app';
+
 export type Difficulty = 'easy' | 'normal' | 'hard';
 
 class State {
@@ -22,9 +24,10 @@ class State {
         this.isPaused = bool;
     };
 
-    setGameIsOver = (bool: boolean): void => {
-        this.setPause(bool);
-        this.gameIsOver = bool;
+    endGame = (): void => {
+        this.setPause(true);
+        this.gameIsOver = true;
+        loadGameOverModal();
     };
 }
 
