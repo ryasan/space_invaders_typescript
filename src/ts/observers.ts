@@ -3,8 +3,8 @@ type Fn = (...args: any) => any;
 class Observer {
     observerList: Fn[] = [];
 
-    subscribe = (fn: Fn): void => {
-        this.observerList.push(fn);
+    subscribe = (...fn: Fn[]): void => {
+        this.observerList.push(...fn);
     };
 
     unsubscribe = (fnToRemove: Fn): void => {
@@ -16,4 +16,4 @@ class Observer {
     };
 }
 
-export const subject = new Observer();
+export const deathObserver = new Observer();

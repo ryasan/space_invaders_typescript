@@ -133,7 +133,7 @@ a {
 .bullet {
     background: white;
     height: 20px;
-    position: absolute;
+    position: fixed;
     width: 6px;
     z-index: 999;
 }
@@ -177,9 +177,27 @@ a {
     &--wide {
         width: 100px;
     }
+
+    &:not(:first-child) {
+        margin-left: 5px;
+    }
 }
 
-.menu {
+#instructions__movement {
+    align-items: center;
+    display: flex;
+    font-size: 25px;
+    justify-content: center;
+}
+
+.instructions__key {
+    &--down {
+        display: flex;
+        flex-direction: column;
+    }
+}
+
+#menu {
     align-self: center;
     text-align: center;
 }
@@ -191,12 +209,25 @@ a {
 }
 
 .difficulty__title {
+    color: var(--cyan-400);
     font-size: 2vw;
-    margin: 20px 0;
+    margin: 40px 0;
     text-transform: uppercase;
 }
 
+.menu__difficulty-container {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+}
+
+.menu__difficulty-list {
+    display: flex;
+    flex-direction: column;
+}
+
 .menu__difficulty {
+    display: inline-block;
     font-size: 1.5vw;
     margin: 10px 0;
     text-transform: uppercase;
@@ -204,4 +235,14 @@ a {
     &:hover {
         color: var(--cyan-400);
     }
+}
+
+#modal {
+    background: rgba(0, 0, 0, 0.8);
+    height: 100%;
+    left: 0;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 99;
 }

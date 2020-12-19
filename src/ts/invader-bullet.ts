@@ -1,14 +1,18 @@
-import { center, earth, state, player } from './app';
+import { center, earth, state, player, SHIP_HEIGHT } from './app';
 import { rectOf, checkCollision } from './utils';
 
 class InvaderBullet {
     node = document.createElement('div');
     bullets: InvaderBullet[];
+    y: number;
+    x: number;
 
-    constructor (bullets: InvaderBullet[]) {
+    constructor (x: number, y: number, bullets: InvaderBullet[]) {
         this.node.className = 'bullet';
-        this.node.style.cssText = `bottom: 0; left: ${center}px`;
+        this.node.style.cssText = `top: ${y + SHIP_HEIGHT}px; left: ${x + center}px`; // prettier-ignore
         this.bullets = bullets;
+        this.x = x;
+        this.y = y;
     }
 
     remove = (): void => {
@@ -22,7 +26,7 @@ class InvaderBullet {
                 this.remove();
                 player.die();
             }
-            if (this.node.offsetTop >= earth.offsetHeight) {
+            if (this.y >= earth.offsetHeight + SHIP_HEIGHT) {
                 this.remove();
             }
         }
@@ -30,7 +34,7 @@ class InvaderBullet {
 
     update = (): void => {
         if (!state.isPaused) {
-            this.node.style.top = `${this.node.offsetTop + 5}px`;
+            this.node.style.top = `${(this.y += 10)}px`;
             this.checkForHitOnPlayer();
         }
         requestAnimationFrame(this.update);

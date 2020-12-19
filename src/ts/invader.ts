@@ -1,5 +1,5 @@
 import InvaderBullet from './invader-bullet';
-
+import { rectOf } from './utils';
 class Invader {
     node = document.createElement('div');
     bullets: InvaderBullet[] = [];
@@ -16,7 +16,8 @@ class Invader {
     };
 
     fire = (): void => {
-        this.bullet = new InvaderBullet(this.bullets);
+        const { x, y } = rectOf(this.node);
+        this.bullet = new InvaderBullet(x, y, this.bullets);
         this.bullets.push(this.bullet);
         this.update();
     };

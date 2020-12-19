@@ -1,6 +1,7 @@
 import PlayerBullet from './player-bullet';
-import { center, state } from './app';
-import { sleep } from './utils';
+import { center, state, score, livesList } from './app';
+import { rectOf, sleep } from './utils';
+import { deathObserver } from './observers';
 
 class Player {
     livesCount = 3;
@@ -8,22 +9,26 @@ class Player {
     x = 500;
     moveID = 0;
     node = document.createElement('div');
-    score = document.getElementById('score-count') as HTMLElement;
-    gun = document.getElementById('gun') as HTMLElement;
-    livesList = document.getElementById('lives-list') as HTMLElement;
+
     bullets: PlayerBullet[] = [];
     bullet: PlayerBullet | null = null;
     onCoolDown = false;
 
     constructor () {
         this.node.id = 'player';
+        deathObserver.subscribe(this.endGame);
     }
 
     die = (): void => {
+        // deathObserver.notify({ livesCount: this.livesCount-- });
         this.livesCount--;
         this.node.remove();
-        this.livesList.removeChild(this.livesList.childNodes[0]);
-        // if no more lives end game
+        livesList.removeChild(livesList.childNodes[0]);
+    };
+
+    endGame = (ctx: any): void => {
+        console.log(ctx);
+        // do something
     };
 
     moveLeft = (): void => {
@@ -49,24 +54,24 @@ class Player {
     scorePoints = async (): Promise<void> => {
         for (let i = 1; i <= 10; i++) {
             this.scoreCount++;
-            this.score.textContent = this.scoreCount.toString();
+            score.textContent = this.scoreCount.toString();
             await sleep(25);
         }
     };
 
     fire = (): void => {
-        const x = this.node.offsetLeft + center;
-        this.bullet = new PlayerBullet(x, this.bullets);
+        const { x, y } = rectOf(this.node);
+        this.bullet = new PlayerBullet(x, y, this.bullets);
         this.bullets.push(this.bullet);
         this.update();
     };
 
     update = (): void => {
         if (this.bullet && !this.onCoolDown) {
-            this.gun.appendChild(this.bullet.element());
+            this.node.appendChild(this.bullet.element());
             this.bullet.update();
             this.onCoolDown = true;
-            sleep(250).then(() => (this.onCoolDown = false));
+            sleep(150).then(() => (this.onCoolDown = false));
         }
     };
 
@@ -76,7 +81,7 @@ class Player {
 
     // prettier-ignore
     render = (): void => {
-        this.livesList.innerHTML = '<div class="life"></div>'.repeat(this.livesCount);
+        livesList.innerHTML = '<div class="life"></div>'.repeat(this.livesCount);
         (document.getElementById('player-zone') as HTMLElement).appendChild(this.node)
     };
 }

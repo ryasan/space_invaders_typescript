@@ -24,7 +24,9 @@ export let player: Player,
            container: HTMLElement,
            columns: HTMLCollection,
            btnGroup: HTMLElement,
-           earth: HTMLElement
+           earth: HTMLElement,
+           score: HTMLElement,
+           livesList: HTMLElement
 
 export const center = (SHIP_WIDTH / 2) - (BULLET_WIDTH / 2); // prettier-ignore
 
@@ -37,9 +39,9 @@ const onKeydown = (e: KeyboardEvent): void => {
     }
 };
 
-const initStartMenu = () => {
+export const loadStartMenu = (): void => {
     document.body.innerHTML = `
-        <div class="menu">
+        <div id="menu">
             <h1 class="menu__title">
                 Space Invaders
             </h1>
@@ -68,12 +70,11 @@ const initStartMenu = () => {
     );
 };
 
-const initGame = () => {
+const loadEnvironment = (): void => {
     document.body.innerHTML = `
         <div id="container">
             <div id="header">
-                <div id="btn-group">
-                </div>
+                <div id="btn-group"></div>
                 <div id="score">
                     <span>SCORE:</span>&nbsp;<span id="score-count">0</span>
                 </div>
@@ -87,10 +88,10 @@ const initGame = () => {
                 <ul id="invader-column-list">
                     ${`<li class="invader-column"></li>`.repeat(10)}
                 </ul>
-                <div id="player-zone">
-                    <div id="gun"></div>
-                </div>
+                <div id="player-zone"></div>
             </div>
+
+            <!-- <div id="modal" class="modal"></div> -->
         </div>
     `;
 
@@ -98,10 +99,12 @@ const initGame = () => {
     container = document.getElementById('container') as HTMLElement;
     btnGroup = document.getElementById('btn-group') as HTMLElement;
     earth = document.getElementById('earth') as HTMLElement;
+    score = document.getElementById('score-count') as HTMLElement;
+    livesList = document.getElementById('lives-list') as HTMLElement;
 };
 
 export const loadNewGame = (difficulty: Difficulty): void => {
-    initGame();
+    loadEnvironment();
 
     state = new State(difficulty);
 
@@ -119,4 +122,4 @@ export const loadNewGame = (difficulty: Difficulty): void => {
     window.addEventListener('blur', controls.pause);
 };
 
-window.addEventListener('load', initStartMenu);
+window.addEventListener('load', loadStartMenu);

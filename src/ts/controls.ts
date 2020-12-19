@@ -1,4 +1,4 @@
-import { loadNewGame, state, btnGroup } from './app';
+import { loadNewGame, state, btnGroup, loadStartMenu } from './app';
 import { intervals } from './invaders';
 
 const Button = (text: string, id?: string) => {
@@ -20,11 +20,14 @@ class Controls {
     resetBtn = Button('RESET');
     playBtn = Button('PLAY');
     pauseBtn = Button('PAUSE');
+    startMenuBtn = Button('MENU');
 
     constructor () {
+        decorateWide(this.startMenuBtn);
+        this.startMenuBtn.addEventListener('click', loadStartMenu);
+
         decorateWide(this.resetBtn);
         this.resetBtn.addEventListener('click', () => {
-            console.log('test')
             if (intervals.attack !== null) clearInterval(intervals.attack);
             if (intervals.moveDown !== null) clearInterval(intervals.moveDown);
             loadNewGame(state.difficulty);
@@ -58,7 +61,7 @@ class Controls {
     };
 
     render = (): void => {
-        btnGroup.append(this.resetBtn, this.playBtn);
+        btnGroup.append(this.startMenuBtn, this.resetBtn, this.playBtn);
     };
 }
 
