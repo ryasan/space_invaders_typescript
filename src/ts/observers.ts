@@ -1,6 +1,6 @@
-type Fn = (...args: any) => any;
+type Fn = (args: any) => any;
 
-class Observer {
+export default class Observer {
     observerList: Fn[] = [];
 
     subscribe = (...fn: Fn[]): void => {
@@ -11,9 +11,7 @@ class Observer {
         this.observerList.filter(fn => fn !== fnToRemove);
     };
 
-    notify = (context: any): void => {
-        this.observerList.forEach((fn: any) => fn(context));
+    notify = (context?: any): void => {
+        this.observerList.forEach((fn: Fn) => fn(context));
     };
 }
-
-export const deathObserver = new Observer();

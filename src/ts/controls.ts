@@ -1,4 +1,10 @@
-import { loadNewGame, state, btnGroup, loadStartMenu } from './app';
+import {
+    loadNewGame,
+    state,
+    btnGroup,
+    loadStartMenu,
+    deathObserver
+} from './app';
 import { intervals } from './invaders';
 
 const Button = (text: string, id?: string) => {
@@ -27,37 +33,37 @@ class Controls {
         this.startMenuBtn.addEventListener('click', loadStartMenu);
 
         decorateWide(this.resetBtn);
-        this.resetBtn.addEventListener('click', () => {
-            if (intervals.attack !== null) clearInterval(intervals.attack);
-            if (intervals.moveDown !== null) clearInterval(intervals.moveDown);
-            loadNewGame(state.difficulty);
-        });
+        this.resetBtn.addEventListener('click', this.reset);
 
         decorateWide(this.playBtn);
-        this.playBtn.addEventListener('click', () => {
-            if (btnGroup.contains(this.playBtn)) {
-                state.setPause(false);
-                btnGroup.appendChild(this.pauseBtn);
-                btnGroup.removeChild(this.playBtn);
-            }
-        });
+        this.playBtn.addEventListener('click', this.play);
 
         decorateWide(this.pauseBtn);
-        this.pauseBtn.addEventListener('click', () => {
-            if (btnGroup.contains(this.pauseBtn)) {
-                state.setPause(true);
-                btnGroup.appendChild(this.playBtn);
-                btnGroup.removeChild(this.pauseBtn);
-            }
-        });
+        this.pauseBtn.addEventListener('click', this.pause);
+
+        deathObserver.subscribe(this.pause);
     }
 
     pause = (): void => {
-        this.pauseBtn.click();
+        if (btnGroup.contains(this.pauseBtn)) {
+            state.setPause(true);
+            btnGroup.appendChild(this.playBtn);
+            btnGroup.removeChild(this.pauseBtn);
+        }
     };
 
     play = (): void => {
-        this.playBtn.click();
+        if (btnGroup.contains(this.playBtn)) {
+            state.setPause(false);
+            btnGroup.appendChild(this.pauseBtn);
+            btnGroup.removeChild(this.playBtn);
+        }
+    };
+
+    reset = (): void => {
+        if (intervals.attack !== null) clearInterval(intervals.attack);
+        if (intervals.moveDown !== null) clearInterval(intervals.moveDown);
+        loadNewGame(state.difficulty);
     };
 
     render = (): void => {

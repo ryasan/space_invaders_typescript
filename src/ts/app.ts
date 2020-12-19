@@ -4,6 +4,7 @@ import Player from './player';
 import Invaders from './invaders';
 import State, { Difficulty } from './state';
 import Controls from './controls';
+import Observer from './observers';
 
 // prettier-ignore
 export const LEFT_ARROW = 37,
@@ -21,6 +22,7 @@ export let player: Player,
            invaders: Invaders,
            state: State,
            controls: Controls,
+           deathObserver: Observer,
            container: HTMLElement,
            columns: HTMLCollection,
            btnGroup: HTMLElement,
@@ -107,6 +109,7 @@ export const loadNewGame = (difficulty: Difficulty): void => {
     loadEnvironment();
 
     state = new State(difficulty);
+    deathObserver = new Observer();
 
     controls = new Controls();
     controls.render();
