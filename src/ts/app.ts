@@ -41,6 +41,8 @@ const onKeydown = (e: KeyboardEvent): void => {
     }
 };
 
+// TODO - add control instructions to start menu
+
 export const loadStartMenu = (): void => {
     document.body.innerHTML = `
         <div id="menu">
@@ -91,7 +93,6 @@ const loadEnvironment = (): void => {
                 <ul id="invader-column-list">
                     ${`<li class="invader-column"></li>`.repeat(10)}
                 </ul>
-                <div id="player-zone"></div>
             </div>
         </div>
     `;

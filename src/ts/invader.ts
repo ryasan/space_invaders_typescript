@@ -1,14 +1,16 @@
 import InvaderBullet from './invader-bullet';
+import { earth, state } from './app';
 import { rectOf } from './utils';
+
 class Invader {
     node = document.createElement('div');
     bullets: InvaderBullet[] = [];
     bullet: InvaderBullet | null = null;
     coordinates: [number, number];
 
-    constructor (numA: number, numB: number) {
+    constructor (x: number, y: number) {
         this.node.className = 'invader';
-        this.coordinates = [numA, numB];
+        this.coordinates = [x, y];
     }
 
     remove = (): void => {
@@ -24,7 +26,7 @@ class Invader {
 
     update = (): void => {
         if (this.bullet) {
-            this.node.appendChild(this.bullet.element());
+            earth.appendChild(this.bullet.element());
             this.bullet.update();
         }
     };

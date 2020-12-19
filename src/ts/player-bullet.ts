@@ -1,13 +1,20 @@
-import { earth, state, player, invaders, SHIP_HEIGHT, center } from './app';
+import {
+    earth,
+    state,
+    player,
+    invaders,
+    SHIP_HEIGHT,
+    BULLET_WIDTH
+} from './app';
 import { rectOf, checkCollision } from './utils';
 
 class PlayerBullet {
     node = document.createElement('div');
     bullets: PlayerBullet[];
 
-    constructor (x: number, y: number, bullets: PlayerBullet[]) {
+    constructor (x: number, bullets: PlayerBullet[]) {
         this.node.className = 'bullet';
-        this.node.style.cssText = `bottom: ${SHIP_HEIGHT}; left: ${x + center}px`; // prettier-ignore
+        this.node.style.cssText = `bottom: ${SHIP_HEIGHT - 10}px; left: ${x + BULLET_WIDTH}px`; // prettier-ignore
         this.bullets = bullets;
     }
 

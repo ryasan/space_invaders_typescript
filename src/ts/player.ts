@@ -1,5 +1,5 @@
 import PlayerBullet from './player-bullet';
-import { state, score, livesList, deathObserver } from './app';
+import { state, score, livesList, deathObserver, earth } from './app';
 import { rectOf, sleep } from './utils';
 
 class Player {
@@ -8,7 +8,6 @@ class Player {
     x = 500;
     moveID = 0;
     node = document.createElement('div');
-
     bullets: PlayerBullet[] = [];
     bullet: PlayerBullet | null = null;
     onCoolDown = false;
@@ -58,15 +57,15 @@ class Player {
     };
 
     fire = (): void => {
-        const { x, y } = rectOf(this.node);
-        this.bullet = new PlayerBullet(x, y, this.bullets);
+        const { x } = rectOf(this.node);
+        this.bullet = new PlayerBullet(x, this.bullets);
         this.bullets.push(this.bullet);
         this.update();
     };
 
     update = (): void => {
         if (this.bullet && !this.onCoolDown) {
-            this.node.appendChild(this.bullet.element());
+            earth.appendChild(this.bullet.element());
             this.bullet.update();
             this.onCoolDown = true;
             sleep(150).then(() => (this.onCoolDown = false));
@@ -80,7 +79,7 @@ class Player {
     // prettier-ignore
     render = (): void => {
         livesList.innerHTML = '<div class="life"></div>'.repeat(this.livesCount);
-        (document.getElementById('player-zone') as HTMLElement).appendChild(this.node)
+        earth.appendChild(this.node)
     };
 }
 

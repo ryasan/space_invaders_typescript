@@ -78,6 +78,7 @@ a {
     flex-direction: column;
     justify-content: space-between;
     overflow: hidden;
+    position: relative;
     width: 100%;
 }
 
@@ -108,7 +109,6 @@ a {
 
 #player-zone {
     height: $ship-height;
-    position: relative;
     width: 100%;
 }
 
@@ -130,7 +130,7 @@ a {
 .bullet {
     background: white;
     height: 20px;
-    position: fixed;
+    position: absolute;
     width: 6px;
     z-index: 999;
 }
