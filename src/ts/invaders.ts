@@ -1,11 +1,4 @@
-import {
-    columns,
-    state,
-    earth,
-    ROW_LENGTH,
-    COLUMN_LENGTH,
-    SHIP_HEIGHT
-} from './app';
+import { columns, state, earth, ROW_LENGTH, COLUMN_LENGTH } from './app';
 import { random, rectOf } from './utils';
 import Invader from './invader';
 
@@ -45,16 +38,18 @@ interface Dimensions {
 const RIGHT = 'RIGHT';
 const LEFT = 'LEFT';
 
-class Invaders {
+export default class Invaders {
     matrix: Matrix = createMatrix();
     invaderElements = document.getElementById('invader-column-list') as HTMLElement; // prettier-ignore
     earthDims: Dimensions;
     direction = RIGHT;
     x = 0;
     y = 0;
+    // indices = Array.from(Array(columns.length).keys());
 
     constructor () {
         this.earthDims = rectOf(earth);
+        // console.log(this.indices);
     }
 
     getDimensions = (): Dimensions => {
@@ -79,7 +74,7 @@ class Invaders {
 
     moveDown = (): void => {
         if (!state.isPaused) {
-            this.invaderElements.style.top = `${(this.y += SHIP_HEIGHT)}px`;
+            this.invaderElements.style.top = `${(this.y += 50)}px`;
         }
     };
 
@@ -103,7 +98,7 @@ class Invaders {
             const bottomInvaders: Invader[] = this.updateBottom();
             const idx = random(0, COLUMN_LENGTH - 1);
 
-            if (bottomInvaders[idx]) {
+            if (columns[idx].hasChildNodes()) {
                 bottomInvaders[idx].fire();
             }
         }
@@ -118,10 +113,7 @@ class Invaders {
 
     update = (): void => {
         this.updateMoving();
-        intervals.attack = setInterval(
-            this.updateAttack,
-            state.speed[state.difficulty]
-        );
+        intervals.attack = setInterval(this.updateAttack, state.speed[state.difficulty]); // prettier-ignore
         intervals.moveDown = setInterval(this.moveDown, 10000);
     };
 
@@ -138,5 +130,3 @@ class Invaders {
         });
     };
 }
-
-export default Invaders;

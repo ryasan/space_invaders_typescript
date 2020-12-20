@@ -2,7 +2,7 @@ import PlayerBullet from './player-bullet';
 import { state, score, livesList, deathObserver, earth } from './app';
 import { rectOf, sleep } from './utils';
 
-class Player {
+export default class Player {
     livesCount = 3;
     scoreCount = 0;
     x = 500;
@@ -82,5 +82,3 @@ class Player {
         earth.appendChild(this.node)
     };
 }
-
-export default Player;

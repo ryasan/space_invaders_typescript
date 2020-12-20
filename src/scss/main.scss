@@ -38,6 +38,10 @@ body {
     overflow: hidden;
 }
 
+h1 {
+    color: white;
+}
+
 ul {
     list-style-type: none;
 }
@@ -57,9 +61,11 @@ a {
 }
 
 #header {
-    display: flex;
+    align-items: center;
+    column-gap: 10px;
+    display: grid;
     font-size: 30px;
-    justify-content: space-around;
+    grid-template-columns: 1fr 1fr 1fr;
     padding: 10px 0;
     width: 100%;
 }
@@ -99,12 +105,11 @@ a {
 .invader {
     @include base-ship;
 
-    background: url('https://i.postimg.cc/NjQ4VKPY/invader.gif') center center/cover no-repeat;
+    background:
+        url('https://i.postimg.cc/NjQ4VKPY/invader.gif') center
+        center/cover no-repeat;
+    margin-top: 10px;
     position: relative;
-
-    &:not(:first-child) {
-        margin-top: 10px;
-    }
 }
 
 #player-zone {
@@ -115,7 +120,9 @@ a {
 #player {
     @include base-ship;
 
-    background: url('https://i.postimg.cc/m2Yj8Yj8/player.png') center center/cover no-repeat;
+    background:
+        url('https://i.postimg.cc/m2Yj8Yj8/player.png') center
+        center/cover no-repeat;
     bottom: 0;
     left: 499px;
     position: absolute;
@@ -137,6 +144,7 @@ a {
 
 #lives {
     display: flex;
+    flex: 1;
 }
 
 #lives-list {
@@ -144,16 +152,20 @@ a {
 }
 
 .life {
-    background: url('https://i.postimg.cc/m2Yj8Yj8/player.png') center center/contain no-repeat;
+    background:
+        url('https://i.postimg.cc/m2Yj8Yj8/player.png') center
+        center/contain no-repeat;
     height: 30px;
     margin-left: 10px;
     width: 40px;
 }
 
 #btn-group {
-    display: flex;
-    justify-content: space-between;
-    width: 215px;
+    column-gap: 10px;
+    display: grid;
+    flex: 1;
+    grid-template-columns: 1fr 1fr 1fr;
+    padding: 0 10px;
 }
 
 .btn {
@@ -164,20 +176,13 @@ a {
     cursor: pointer;
     font-weight: 600;
     height: 50px;
+    min-width: 50px;
     text-transform: uppercase;
-    width: 50px;
+    width: 100%;
 
     &:hover {
         background: $cyan;
         color: $black;
-    }
-
-    &--wide {
-        width: 100px;
-    }
-
-    &:not(:first-child) {
-        margin-left: 5px;
     }
 }
 
@@ -201,7 +206,9 @@ a {
 }
 
 .menu__gif {
-    background: url('https://i.postimg.cc/NjQ4VKPY/invader.gif') center center/contain no-repeat;
+    background:
+        url('https://i.postimg.cc/NjQ4VKPY/invader.gif') center
+        center/contain no-repeat;
     height: 150px;
     margin: 0 auto;
 

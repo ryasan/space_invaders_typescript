@@ -1,13 +1,13 @@
-import { earth, state, player, deathObserver, BULLET_WIDTH } from './app';
+import { earth, state, player, deathObserver } from './app';
 import { rectOf, checkCollision } from './utils';
 
-class InvaderBullet {
+export default class InvaderBullet {
     node = document.createElement('div');
     bullets: InvaderBullet[];
 
     constructor (x: number, y: number, bullets: InvaderBullet[]) {
         this.node.className = 'bullet';
-        this.node.style.cssText = `top: ${y - 30}px; left: ${x + BULLET_WIDTH}px`; // prettier-ignore
+        this.node.style.cssText = `top: ${y - 30}px; left: ${x - 79}px`;
         this.bullets = bullets;
 
         deathObserver.subscribe(this.remove);
@@ -25,7 +25,6 @@ class InvaderBullet {
                 deathObserver.notify();
             }
             if (this.node.offsetTop >= earth.offsetHeight) {
-                console.log('bullet destroyed');
                 this.remove();
             }
         }
@@ -43,5 +42,3 @@ class InvaderBullet {
         return this.node;
     };
 }
-
-export default InvaderBullet;

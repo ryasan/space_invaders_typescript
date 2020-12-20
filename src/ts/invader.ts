@@ -1,8 +1,8 @@
 import InvaderBullet from './invader-bullet';
-import { earth, state } from './app';
+import { earth } from './app';
 import { rectOf } from './utils';
 
-class Invader {
+export default class Invader {
     node = document.createElement('div');
     bullets: InvaderBullet[] = [];
     bullet: InvaderBullet | null = null;
@@ -35,5 +35,3 @@ class Invader {
         return this.node;
     };
 }
-
-export default Invader;

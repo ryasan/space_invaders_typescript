@@ -1,20 +1,13 @@
-import {
-    earth,
-    state,
-    player,
-    invaders,
-    SHIP_HEIGHT,
-    BULLET_WIDTH
-} from './app';
+import { earth, state, player, invaders } from './app';
 import { rectOf, checkCollision } from './utils';
 
-class PlayerBullet {
+export default class PlayerBullet {
     node = document.createElement('div');
     bullets: PlayerBullet[];
 
     constructor (x: number, bullets: PlayerBullet[]) {
         this.node.className = 'bullet';
-        this.node.style.cssText = `bottom: ${SHIP_HEIGHT - 10}px; left: ${x + BULLET_WIDTH}px`; // prettier-ignore
+        this.node.style.cssText = `bottom: 40px; left: ${x - 80}px`; // prettier-ignore
         this.bullets = bullets;
     }
 
@@ -38,7 +31,6 @@ class PlayerBullet {
                     player.scorePoints();
                     invaders.removeInvader(invader);
                 }
-
                 if (this.node.offsetTop <= -earth.offsetHeight) {
                     this.remove();
                 }
@@ -59,5 +51,3 @@ class PlayerBullet {
         return this.node;
     };
 }
-
-export default PlayerBullet;

@@ -8,46 +8,32 @@ import {
 } from './app';
 import { intervals } from './invaders';
 
-const Button = (text: string, id?: string) => {
-    const btn = document.createElement('button');
-    if (id) btn.id = id;
-    btn.textContent = text;
-    btn.className = 'btn';
-
-    return btn;
+const Button = (text: string, onclick: () => void) => {
+    return Object.assign(document.createElement('button'), {
+        onclick: onclick,
+        textContent: text,
+        className: 'btn'
+    });
 };
 
-const decorateWide = (btn: HTMLElement) => {
-    btn.classList.add('btn--wide');
-
-    return btn;
-};
-
-class Controls {
-    resetBtn = Button('RESET');
-    playBtn = Button('PLAY');
-    pauseBtn = Button('PAUSE');
-    startMenuBtn = Button('MENU');
+export default class Controls {
+    resetBtn: HTMLElement;
+    playBtn: HTMLElement;
+    pauseBtn: HTMLElement;
+    startMenuBtn: HTMLElement;
 
     constructor () {
-        decorateWide(this.startMenuBtn);
-        this.startMenuBtn.addEventListener('click', loadStartMenu);
-
-        decorateWide(this.resetBtn);
-        this.resetBtn.addEventListener('click', this.reset);
-
-        decorateWide(this.playBtn);
-        this.playBtn.addEventListener('click', this.play);
-
-        decorateWide(this.pauseBtn);
-        this.pauseBtn.addEventListener('click', this.pause);
+        this.resetBtn = Button('RESET', this.reset);
+        this.playBtn = Button('PLAY', this.play);
+        this.pauseBtn = Button('PAUSE', this.pause);
+        this.startMenuBtn = Button('MENU', loadStartMenu);
 
         deathObserver.subscribe(this.pause);
     }
 
     pause = (): void => {
         if (btnGroup.contains(this.pauseBtn)) {
-            state.setPause(true);
+            state.setIsPaused(true);
             btnGroup.appendChild(this.playBtn);
             btnGroup.removeChild(this.pauseBtn);
         }
@@ -55,7 +41,7 @@ class Controls {
 
     play = (): void => {
         if (btnGroup.contains(this.playBtn)) {
-            state.setPause(false);
+            state.setIsPaused(false);
             btnGroup.appendChild(this.pauseBtn);
             btnGroup.removeChild(this.playBtn);
         }
@@ -74,5 +60,3 @@ class Controls {
         btnGroup.append(this.startMenuBtn, this.resetBtn, this.playBtn);
     };
 }
-
-export default Controls;
