@@ -34,8 +34,45 @@ const onKeydown = (e: KeyboardEvent): void => {
     }
 };
 
-// TODO - add control instructions to start menu
+class MenuButton extends HTMLElement {
+    name: string;
 
+    constructor () {
+        super();
+
+        this.name = this.getAttribute('name') as string;
+        this.innerHTML = `
+            <li class="menu__difficulty">
+                <a>${this.name}</a>
+            </li>
+        `;
+    }
+
+    connectedCallback () {
+        this.addEventListener('click', this.loadNewGame);
+    }
+
+    disconnectedCallback () {
+        this.removeEventListener('click', this.loadNewGame);
+    }
+
+    loadNewGame () {
+        loadNewGame(this.name as Difficulty);
+    }
+}
+
+const components = [
+    {
+        tagName: 'menu-button',
+        component: MenuButton
+    }
+];
+
+components.forEach(c => {
+    window.customElements.define(c.tagName, c.component);
+});
+
+// TODO - add control instructions to start menu
 export const loadStartMenu = (): void => {
     document.body.innerHTML = `
         <div id="menu">
@@ -46,26 +83,13 @@ export const loadStartMenu = (): void => {
             <div class="menu__difficulty-container">
                 <h3 class="difficulty__title">Select difficulty</h3>
                 <ul class="menu__difficulty-list">
-                    <li class="menu__difficulty">
-                        <a data-mode="easy">Easy</a>
-                    </li>
-                    <li class="menu__difficulty">
-                        <a data-mode="normal">Normal</a>
-                    </li>
-                    <li class="menu__difficulty">
-                        <a data-mode="hard">Hard</a>
-                    </li>
+                    <menu-button name="easy" /></menu-button>
+                    <menu-button name="normal"></menu-button>
+                    <menu-button name="hard"></menu-button>
                 </ul>
             </div>
         </div>
     `;
-
-    [...document.getElementsByClassName('menu__difficulty')].forEach(node =>
-        node.addEventListener('click', (e: Event) => {
-            const { mode } = (e.target as HTMLElement).dataset;
-            loadNewGame(mode as Difficulty);
-        })
-    );
 };
 
 const loadEnvironment = (): void => {
@@ -100,18 +124,18 @@ const loadEnvironment = (): void => {
 
 export const loadGameOverModal = () => {
     container.innerHTML += `
-            <div id="modal" class="modal">
-                <div class="modal__inner">
-                    <h1 class="modal__title">GAME OVER!</h1>
-                    <button id="play-again-btn" class="btn">
-                        PLAY AGAIN
-                    </button>
-                    <button id="main-menu-btn" class="btn">
-                        MAIN MENU
-                    </button>
-                </div>
+        <div id="modal" class="modal">
+            <div class="modal__inner">
+                <h1 class="modal__title">GAME OVER!</h1>
+                <button id="play-again-btn" class="btn">
+                    PLAY AGAIN
+                </button>
+                <button id="main-menu-btn" class="btn">
+                    MAIN MENU
+                </button>
             </div>
-        `;
+        </div>
+    `;
 
     (document.getElementById('play-again-btn') as HTMLElement).addEventListener(
         'click',
