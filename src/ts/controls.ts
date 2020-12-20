@@ -3,7 +3,7 @@ import {
     state,
     btnGroup,
     loadStartMenu,
-    deathObserver,
+    playerDeathObserver,
     player
 } from './app';
 import { intervals } from './invaders';
@@ -28,7 +28,7 @@ export default class Controls {
         this.pauseBtn = Button('PAUSE', this.pause);
         this.startMenuBtn = Button('MENU', loadStartMenu);
 
-        deathObserver.subscribe(this.pause);
+        playerDeathObserver.subscribe(this.pause);
     }
 
     pause = (): void => {

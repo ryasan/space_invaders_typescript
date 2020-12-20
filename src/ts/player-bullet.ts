@@ -1,4 +1,4 @@
-import { earth, state, player, invaders } from './app';
+import { earth, state, player, invaders, invaderDeathObserver } from './app';
 import { rectOf, checkCollision } from './utils';
 
 export default class PlayerBullet {
@@ -9,6 +9,8 @@ export default class PlayerBullet {
         this.node.className = 'bullet';
         this.node.style.cssText = `bottom: 40px; left: ${x - 80}px`; // prettier-ignore
         this.bullets = bullets;
+
+        invaderDeathObserver.subscribe(this.remove)
     }
 
     remove = (): void => {
@@ -29,7 +31,8 @@ export default class PlayerBullet {
                 if (invader && checkCollision(rect1, rect2)) {
                     this.remove();
                     player.scorePoints();
-                    invaders.removeInvader(invader);
+                    invaders.removeInvader({ invader });
+                    // invaderDeathObserver.notify({ invader });
                 }
                 if (this.node.offsetTop <= -earth.offsetHeight) {
                     this.remove();

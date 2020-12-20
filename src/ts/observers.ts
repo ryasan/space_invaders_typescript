@@ -11,7 +11,7 @@ export default class Observer {
         this.observerList.filter(fn => fn !== fnToRemove);
     };
 
-    notify = (context?: any): void => {
-        this.observerList.forEach((fn: Fn) => fn(context));
+    notify = (props?: any): void => {
+        this.observerList.forEach((fn: Fn) => fn(props));
     };
 }

@@ -17,7 +17,8 @@ export let player: Player,
            invaders: Invaders,
            state: State,
            controls: Controls,
-           deathObserver: Observer,
+           playerDeathObserver: Observer,
+           invaderDeathObserver: Observer,
            container: HTMLElement,
            columns: HTMLCollection,
            btnGroup: HTMLElement,
@@ -34,44 +35,6 @@ const onKeydown = (e: KeyboardEvent): void => {
     }
 };
 
-class MenuButton extends HTMLElement {
-    name: string;
-
-    constructor () {
-        super();
-
-        this.name = this.getAttribute('name') as string;
-        this.innerHTML = `
-            <li class="menu__difficulty">
-                <a>${this.name}</a>
-            </li>
-        `;
-    }
-
-    connectedCallback () {
-        this.addEventListener('click', this.loadNewGame);
-    }
-
-    disconnectedCallback () {
-        this.removeEventListener('click', this.loadNewGame);
-    }
-
-    loadNewGame () {
-        loadNewGame(this.name as Difficulty);
-    }
-}
-
-const components = [
-    {
-        tagName: 'menu-button',
-        component: MenuButton
-    }
-];
-
-components.forEach(c => {
-    window.customElements.define(c.tagName, c.component);
-});
-
 // TODO - add control instructions to start menu
 export const loadStartMenu = (): void => {
     document.body.innerHTML = `
@@ -83,13 +46,26 @@ export const loadStartMenu = (): void => {
             <div class="menu__difficulty-container">
                 <h3 class="difficulty__title">Select difficulty</h3>
                 <ul class="menu__difficulty-list">
-                    <menu-button name="easy" /></menu-button>
-                    <menu-button name="normal"></menu-button>
-                    <menu-button name="hard"></menu-button>
+                    <li class="menu__difficulty">
+                        <a data-mode="easy">Easy</a>
+                    </li>
+                    <li class="menu__difficulty">
+                        <a data-mode="normal">Normal</a>
+                    </li>
+                    <li class="menu__difficulty">
+                        <a data-mode="hard">Hard</a>
+                    </li>
                 </ul>
             </div>
         </div>
     `;
+
+    [...document.getElementsByClassName('menu__difficulty')].forEach(node => {
+        node.addEventListener('click', (e: Event) => {
+            const { mode } = (e.target as HTMLElement).dataset;
+            loadNewGame(mode as Difficulty);
+        });
+    });
 };
 
 const loadEnvironment = (): void => {
@@ -152,7 +128,8 @@ export const loadNewGame = (difficulty: Difficulty): void => {
 
     state = new State(difficulty);
 
-    deathObserver = new Observer();
+    playerDeathObserver = new Observer();
+    invaderDeathObserver = new Observer();
 
     controls = new Controls();
     controls.render();

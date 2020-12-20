@@ -1,4 +1,11 @@
-import { columns, state, earth, ROW_LENGTH, COLUMN_LENGTH } from './app';
+import {
+    columns,
+    state,
+    earth,
+    ROW_LENGTH,
+    COLUMN_LENGTH,
+    invaderDeathObserver
+} from './app';
 import { random, rectOf } from './utils';
 import Invader from './invader';
 
@@ -46,10 +53,11 @@ export default class Invaders {
     x = 0;
     y = 0;
     // indices = Array.from(Array(columns.length).keys());
+    // console.log(this.indices);
 
     constructor () {
         this.earthDims = rectOf(earth);
-        // console.log(this.indices);
+        invaderDeathObserver.subscribe(this.removeInvader);
     }
 
     getDimensions = (): Dimensions => {
@@ -104,7 +112,7 @@ export default class Invaders {
         }
     };
 
-    removeInvader = (invader: Invader): void => {
+    removeInvader = ({ invader }: { invader: Invader }): void => {
         const [col, row] = invader.coordinates;
 
         this.matrix[col].splice(row, 1);

@@ -1,5 +1,12 @@
 import PlayerBullet from './player-bullet';
-import { state, score, livesList, deathObserver, earth } from './app';
+import {
+    state,
+    score,
+    livesList,
+    playerDeathObserver,
+    invaderDeathObserver,
+    earth
+} from './app';
 import { rectOf, sleep } from './utils';
 
 export default class Player {
@@ -14,7 +21,9 @@ export default class Player {
 
     constructor () {
         this.node.id = 'player';
-        deathObserver.subscribe(this.die);
+
+        playerDeathObserver.subscribe(this.die);
+        invaderDeathObserver.subscribe(this.scorePoints);
     }
 
     die = (): void => {

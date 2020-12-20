@@ -1,4 +1,4 @@
-import { earth, state, player, deathObserver } from './app';
+import { earth, state, player, playerDeathObserver } from './app';
 import { rectOf, checkCollision } from './utils';
 
 export default class InvaderBullet {
@@ -10,7 +10,7 @@ export default class InvaderBullet {
         this.node.style.cssText = `top: ${y - 30}px; left: ${x - 79}px`;
         this.bullets = bullets;
 
-        deathObserver.subscribe(this.remove);
+        playerDeathObserver.subscribe(this.remove);
     }
 
     remove = (): void => {
@@ -21,8 +21,7 @@ export default class InvaderBullet {
     checkForHitOnPlayer = (): void => {
         if (player.element()) {
             if (checkCollision(rectOf(this.node), rectOf(player.element()))) {
-                this.remove();
-                deathObserver.notify();
+                playerDeathObserver.notify();
             }
             if (this.node.offsetTop >= earth.offsetHeight) {
                 this.remove();
