@@ -1,37 +1,20 @@
-import InvaderBullet from './invader-bullet';
-import { earth } from './app';
-import { rectOf } from './utils';
+import { Game } from './app';
+
+interface Coordinates {
+    x: number;
+    y: number;
+}
 
 export default class Invader {
-    node = document.createElement('div');
-    bullets: InvaderBullet[] = [];
-    bullet: InvaderBullet | null = null;
-    coordinates: [number, number];
-
-    constructor (x: number, y: number) {
-        this.node.className = 'invader';
-        this.coordinates = [x, y];
+    constructor (game: Game, coordinates: Coordinates) {
+        const { x, y } = coordinates;
+        const img = new Image();
+        
+        // eslint-disable-next-line
+        img.src = 'https://i.postimg.cc/XqLd7DGJ/invader-1.png';
+        img.onload = () => {
+            game.ctx.fillStyle = 'white';
+            game.ctx.drawImage(img, x, y, 35, 35);
+        };
     }
-
-    remove = (): void => {
-        this.element().remove();
-    };
-
-    fire = (): void => {
-        const { x, y } = rectOf(this.node);
-        this.bullet = new InvaderBullet(x, y, this.bullets);
-        this.bullets.push(this.bullet);
-        this.update();
-    };
-
-    update = (): void => {
-        if (this.bullet) {
-            earth.appendChild(this.bullet.element());
-            this.bullet.update();
-        }
-    };
-
-    element = (): HTMLElement => {
-        return this.node;
-    };
 }

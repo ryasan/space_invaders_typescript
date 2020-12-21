@@ -1,108 +1,16 @@
-import 'regenerator-runtime/runtime';
-
-import Player from './player';
-import Invaders from './invaders';
 import State, { Difficulty } from './state';
-import Controls from './controls';
-import Observer from './observers';
-
-const keys = { LEFT: 37, RIGHT: 39, DOWN: 40, SPACE: 32 };
+import Invader from './invader';
 
 // prettier-ignore
-export const COLUMN_LENGTH = 10,
-             ROW_LENGTH = 5;
+export const GAME_OVER = 'GAME_OVER',
+             START_MENU = 'START_MENU',
+             NEW_GAME = 'NEW_GAME';
 
-// prettier-ignore
-export let player: Player,
-           invaders: Invaders,
-           state: State,
-           controls: Controls,
-           playerDeathObserver: Observer,
-           invaderDeathObserver: Observer,
-           container: HTMLElement,
-           columns: HTMLCollection,
-           btnGroup: HTMLElement,
-           earth: HTMLElement,
-           score: HTMLElement,
-           livesList: HTMLElement
-
-const onKeydown = (e: KeyboardEvent): void => {
-    if (!state.isPaused) {
-        if (e.keyCode === keys.LEFT) player.moveLeft();
-        if (e.keyCode === keys.RIGHT) player.moveRight();
-        if (e.keyCode === keys.DOWN) player.stopMoving();
-        if (e.keyCode === keys.SPACE) player.fire();
-    }
-};
-
-// TODO - add control instructions to start menu
-export const loadStartMenu = (): void => {
-    document.body.innerHTML = `
-        <div id="menu">
-            <div class="menu__gif"></div>
-            <h1 class="menu__title">
-                Space Invaders
-            </h1>
-            <div class="menu__difficulty-container">
-                <h3 class="difficulty__title">Select difficulty</h3>
-                <ul class="menu__difficulty-list">
-                    <li class="menu__difficulty">
-                        <a data-mode="easy">Easy</a>
-                    </li>
-                    <li class="menu__difficulty">
-                        <a data-mode="normal">Normal</a>
-                    </li>
-                    <li class="menu__difficulty">
-                        <a data-mode="hard">Hard</a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    `;
-
-    [...document.getElementsByClassName('menu__difficulty')].forEach(node => {
-        node.addEventListener('click', (e: Event) => {
-            const { mode } = (e.target as HTMLElement).dataset;
-            loadNewGame(mode as Difficulty);
-        });
-    });
-};
-
-const loadEnvironment = (): void => {
-    document.body.innerHTML = `
-        <div id="container">
-            <div id="header">
-                <div id="btn-group"></div>
-                <div id="score">
-                    <span>SCORE:</span>&nbsp;<span id="score-count">0</span>
-                </div>
-                <div id="lives">
-                    <span>LIVES:</span>
-                    <ul id="lives-list"></ul>
-                </div>
-            </div>
-
-            <div id="earth">
-                <ul id="invader-column-list">
-                    ${`<li class="invader-column"></li>`.repeat(10)}
-                </ul>
-            </div>
-        </div>
-    `;
-
-    columns = document.getElementsByClassName('invader-column') as HTMLCollection; // prettier-ignore
-    container = document.getElementById('container') as HTMLElement;
-    btnGroup = document.getElementById('btn-group') as HTMLElement;
-    earth = document.getElementById('earth') as HTMLElement;
-    score = document.getElementById('score-count') as HTMLElement;
-    livesList = document.getElementById('lives-list') as HTMLElement;
-};
-
-export const loadGameOverModal = () => {
-    container.innerHTML += `
-        <div id="modal" class="modal">
-            <div class="modal__inner">
-                <h1 class="modal__title">GAME OVER!</h1>
+const html = {
+    gameOver: () => {
+        return `
+            <div class="game-over__inner">
+                <h1 class="game-over__title">GAME OVER!</h1>
                 <button id="play-again-btn" class="btn">
                     PLAY AGAIN
                 </button>
@@ -110,39 +18,258 @@ export const loadGameOverModal = () => {
                     MAIN MENU
                 </button>
             </div>
-        </div>
-    `;
-
-    (document.getElementById('play-again-btn') as HTMLElement).addEventListener(
-        'click',
-        controls.reset
-    );
-    (document.getElementById('main-menu-btn') as HTMLElement).addEventListener(
-        'click',
-        loadStartMenu
-    );
+        `;
+    },
+    startMenuBtn: (difficulty: Difficulty) => {
+        return `
+            <li class="menu__difficulty">
+                <a>${difficulty}</a>
+            </li>
+        `;
+    },
+    startMenu: () => {
+        return `
+            <div class="menu__gif"></div>
+            <h1 class="menu__title">Space Invaders</h1>
+            <div class="menu__difficulty-container">
+                <h3 class="difficulty__title">Select Difficulty</h3>
+                <ul class="menu__difficulty-list">
+                    <start-menu-button difficulty="easy"></start-menu-button>
+                    <start-menu-button difficulty="normal"></start-menu-button>
+                    <start-menu-button difficulty="hard"></start-menu-button>
+                </ul>
+            </div>
+        `;
+    },
+    header: () => {
+        return `
+            <div id="control-btns"></div>
+            <div id="score"></div>
+            <div id="lives"></div>
+        `;
+    },
+    game: () => {
+        return `
+            <top-header></top-header>
+            <canvas id="canvas" width="1200" height="720"></canvas>
+        `;
+    }
 };
 
-export const loadNewGame = (difficulty: Difficulty): void => {
-    loadEnvironment();
+const keys = { LEFT: 37, RIGHT: 39, DOWN: 40, SPACE: 32 };
 
-    state = new State(difficulty);
+const onKeydown = (e: KeyboardEvent): void => {
+    const state = (document.querySelector('#game') as Game).state;
 
-    playerDeathObserver = new Observer();
-    invaderDeathObserver = new Observer();
-
-    controls = new Controls();
-    controls.render();
-
-    invaders = new Invaders();
-    invaders.render();
-    invaders.update();
-
-    player = new Player();
-    player.render();
-
-    window.addEventListener('keydown', onKeydown);
-    window.addEventListener('blur', controls.pause);
+    if (!state.isPaused) {
+        if (e.keyCode === keys.LEFT) console.log('move left');
+        if (e.keyCode === keys.RIGHT) console.log('move right');
+        if (e.keyCode === keys.DOWN) console.log('move down');
+        if (e.keyCode === keys.SPACE) console.log('fire');
+    }
 };
 
-window.addEventListener('load', loadStartMenu);
+class GameOver extends HTMLElement {
+    constructor () {
+        super();
+        this.id = 'game-over';
+        this.innerHTML = html.gameOver();
+    }
+}
+
+class StartMenuBtn extends HTMLElement {
+    difficulty: Difficulty;
+
+    constructor () {
+        super();
+        this.difficulty = this.getAttribute('difficulty') as Difficulty;
+        this.innerHTML = html.startMenuBtn(this.difficulty);
+    }
+
+    renderNewScreen = () => {
+        renderScreen(NEW_GAME);
+    };
+
+    connectedCallback () {
+        this.addEventListener('click', this.renderNewScreen);
+    }
+
+    disconnectedCallback () {
+        this.removeEventListener('click', this.renderNewScreen);
+    }
+}
+
+class StartMenu extends HTMLElement {
+    constructor () {
+        super();
+        this.id = 'menu';
+        this.innerHTML = html.startMenu();
+    }
+}
+
+class Header extends HTMLElement {
+    controlBtns: HTMLElement;
+    resetBtn: HTMLElement;
+    playBtn: HTMLElement;
+    pauseBtn: HTMLElement;
+    startMenuBtn: HTMLElement;
+    state: State;
+
+    static createBtn = (text: string, onclick: () => void) => {
+        return Object.assign(document.createElement('button'), {
+            onclick: onclick,
+            textContent: text,
+            className: 'btn'
+        });
+    };
+
+    constructor () {
+        super();
+        this.id = 'header';
+        this.innerHTML = html.header();
+
+        this.resetBtn = Header.createBtn('RESET', this.reset);
+        this.playBtn = Header.createBtn('PLAY', this.play);
+        this.pauseBtn = Header.createBtn('PAUSE', this.pause);
+        this.startMenuBtn = Header.createBtn('MENU', this.goToStartMenu);
+
+        this.controlBtns = document.querySelector('#control-btns') as HTMLElement; // prettier-ignore
+        this.controlBtns.append(this.startMenuBtn, this.resetBtn, this.playBtn);
+
+        this.state = (document.querySelector('#game') as Game).state;
+    }
+
+    connectedCallback () {
+        window.addEventListener('blur', this.pause);
+    }
+
+    disconnectedCallback () {
+        window.removeEventListener('blur', this.pause);
+    }
+
+    pause = (): void => {
+        if (this.controlBtns.contains(this.pauseBtn)) {
+            this.state.setIsPaused(true);
+            this.controlBtns.appendChild(this.playBtn);
+            this.controlBtns.removeChild(this.pauseBtn);
+        }
+    };
+
+    play = (): void => {
+        if (this.controlBtns.contains(this.playBtn)) {
+            this.state.setIsPaused(false);
+            this.controlBtns.appendChild(this.pauseBtn);
+            this.controlBtns.removeChild(this.playBtn);
+        }
+    };
+
+    goToStartMenu = (): void => {
+        renderScreen(START_MENU);
+    };
+
+    reset = (): void => {
+        renderScreen(NEW_GAME);
+    };
+}
+
+const renderInvaders = (game: Game): Invader[] => {
+    const invaders: Invader[] = [];
+
+    for (let i = 0; i < 60; i++) {
+        const x = 5 + (i % 12) * 50;
+        const y = 5 + (i % 5) * 50;
+        invaders.push(new Invader(game, { x, y }));
+    }
+
+    return invaders;
+};
+
+export class Game extends HTMLElement {
+    ctx: CanvasRenderingContext2D;
+    canvas: any;
+    difficulty: Difficulty;
+    state: State;
+    invaders: Invader[];
+    reqId = 0;
+    start: number | null;
+
+    constructor () {
+        super();
+        this.id = 'game';
+        this.innerHTML = html.game();
+        this.difficulty = (this.getAttribute('difficulty') || 'normal') as Difficulty; // prettier-ignore
+        this.state = new State(this.difficulty);
+        this.canvas = this.querySelector('#canvas');
+        this.ctx = this.canvas.getContext('2d');
+        this.invaders = renderInvaders(this);
+        this.start = null;
+    }
+
+    connectedCallback () {
+        this.tick();
+    }
+
+    disconnectedCallback () {
+        window.cancelAnimationFrame(this.reqId);
+    }
+
+    tick = (timestamp = 0) => {
+        if (this.start === null) this.start = timestamp;
+        const elapsed = timestamp - this.start;
+        console.log(elapsed)
+
+        this.draw(this.ctx);
+        this.reqId = window.requestAnimationFrame(this.tick);
+    };
+
+    draw = (ctx: CanvasRenderingContext2D) => {
+        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    };
+}
+
+export const renderScreen = (screen: string): any => {
+    switch (screen) {
+        case NEW_GAME:
+            document.body.innerHTML = '<game-start></game-start>';
+            break;
+        case START_MENU:
+            document.body.innerHTML = '<start-menu></start-menu>';
+            break;
+        case GAME_OVER:
+            document.body.innerHTML += '<game-over></game-over>';
+            break;
+        default:
+            throw Error('oops');
+    }
+};
+
+const components = [
+    {
+        tagName: 'start-menu',
+        component: StartMenu
+    },
+    {
+        tagName: 'start-menu-button',
+        component: StartMenuBtn
+    },
+    {
+        tagName: 'game-start',
+        component: Game
+    },
+    {
+        tagName: 'game-over',
+        component: GameOver
+    },
+    {
+        tagName: 'top-header',
+        component: Header
+    }
+];
+
+components.forEach(c => {
+    window.customElements.define(c.tagName, c.component);
+});
+
+window.addEventListener('load', () => {
+    renderScreen(START_MENU);
+});
