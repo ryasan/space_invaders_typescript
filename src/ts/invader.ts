@@ -8,15 +8,33 @@ interface Coordinates {
 }
 
 export default class Invader {
-    constructor (game: Game, coordinates: Coordinates, isFirstImg: boolean) {
-        const { x, y } = coordinates;
-        const img = new Image();
+    img = new Image();
+    size = { x: 30, y: 30 };
+    game: Game;
+    center: Coordinates;
+    isFirstImg = true;
 
-        img.src = isFirstImg ? Img1 : Img2;
-
-        img.onload = () => {
-            game.ctx.fillStyle = 'white';
-            game.ctx.drawImage(img, x, y, 30, 30);
-        };
+    constructor (game: Game, center: Coordinates) {
+        this.game = game;
+        this.center = center;
+        this.img.src = Img1;
     }
+
+    draw = (screen: CanvasRenderingContext2D) => {
+        drawRect(screen, this);
+        // this.img.src = this.isFirstImg ? Img1 : Img2;
+        // this.img.onload = () => {
+        //     const { x, y } = this.coordinates;
+        //     this.game.screen.drawImage(this.img, x, y, 30, 30);
+        // };
+    };
+
+    toggleImg = () => {
+        this.isFirstImg = !this.isFirstImg;
+        this.img.src = this.isFirstImg ? Img1 : Img2;
+    };
 }
+
+const drawRect = function (screen: CanvasRenderingContext2D, body: Invader) {
+    screen.drawImage(body.img, body.center.x, body.center.y, 30, 30);
+};
