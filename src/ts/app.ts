@@ -187,7 +187,7 @@ const createInvaders = (game: Game): Invader[] => {
 export class Game extends HTMLElement {
     canvas: any;
     difficulty: any;
-    screen: CanvasRenderingContext2D;
+    ctx: CanvasRenderingContext2D;
     state: State;
     invaders: Invader[] = [];
     reqId = 0;
@@ -203,10 +203,10 @@ export class Game extends HTMLElement {
         this.state = new State(this.difficulty);
 
         this.canvas = this.querySelector('#canvas');
-        this.screen = this.canvas.getContext('2d');
+        this.ctx = this.canvas.getContext('2d');
         this.size = {
-            x: this.screen.canvas.width,
-            y: this.screen.canvas.height
+            x: this.ctx.canvas.width,
+            y: this.ctx.canvas.height
         };
         this.invaders = createInvaders(this);
     }
@@ -225,21 +225,20 @@ export class Game extends HTMLElement {
     };
 
     draw = () => {
-        this.screen.clearRect(0, 0, this.size.x, this.size.y);
+        this.ctx.clearRect(0, 0, this.size.x, this.size.y);
 
+        // flip invader arms animation after 1500ms
         const now = Date.now();
         const elapsed = now - this.then;
+        const intervalReached = elapsed > 1500;
 
-        if (elapsed > 1500) {
+        if (intervalReached) {
             this.then = now - (elapsed % 1500);
-
-            for (let i = 0; i < this.invaders.length; i++) {
-                this.invaders[i].toggleImg();
-            }
         }
 
         for (let i = 0; i < this.invaders.length; i++) {
-            this.invaders[i].draw(this.screen);
+            this.invaders[i].draw();
+            if (intervalReached) this.invaders[i].toggleImg();
         }
     };
 }

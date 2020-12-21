@@ -9,7 +9,6 @@ interface Coordinates {
 
 export default class Invader {
     img = new Image();
-    size = { x: 30, y: 30 };
     game: Game;
     center: Coordinates;
     isFirstImg = true;
@@ -20,8 +19,8 @@ export default class Invader {
         this.img.src = Img1;
     }
 
-    draw = (screen: CanvasRenderingContext2D) => {
-        drawRect(screen, this);
+    draw = () => {
+        drawRect(this.game.ctx, this);
         // this.img.src = this.isFirstImg ? Img1 : Img2;
         // this.img.onload = () => {
         //     const { x, y } = this.coordinates;
@@ -35,6 +34,6 @@ export default class Invader {
     };
 }
 
-const drawRect = function (screen: CanvasRenderingContext2D, body: Invader) {
-    screen.drawImage(body.img, body.center.x, body.center.y, 30, 30);
+const drawRect = function (ctx: CanvasRenderingContext2D, body: Invader) {
+    ctx.drawImage(body.img, body.center.x, body.center.y, 30, 30);
 };
