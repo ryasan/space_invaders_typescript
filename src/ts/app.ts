@@ -172,58 +172,78 @@ class Header extends HTMLElement {
     };
 }
 
-const renderInvaders = (game: Game): Invader[] => {
+const renderInvaders = (game: Game, isFirstImg: boolean): Invader[] => {
     const invaders: Invader[] = [];
 
     for (let i = 0; i < 60; i++) {
         const x = 5 + (i % 12) * 50;
         const y = 5 + (i % 5) * 50;
-        invaders.push(new Invader(game, { x, y }));
+        invaders.push(new Invader(game, { x, y }, isFirstImg));
     }
 
     return invaders;
 };
 
 export class Game extends HTMLElement {
-    ctx: CanvasRenderingContext2D;
     canvas: any;
-    difficulty: Difficulty;
+    difficulty: any;
+    ctx: CanvasRenderingContext2D;
     state: State;
-    invaders: Invader[];
+    invaders: Invader[] = [];
     reqId = 0;
-    start: number | null;
+    isFirstImg = true;
+    start: number | null = null;
+    fps: number | null = null;
+    fpsInterval: number | null = null;
+    then: number | null = null;
 
     constructor () {
         super();
         this.id = 'game';
         this.innerHTML = html.game();
-        this.difficulty = (this.getAttribute('difficulty') || 'normal') as Difficulty; // prettier-ignore
+
+        this.difficulty = this.getAttribute('difficulty') || 'normal';
         this.state = new State(this.difficulty);
+
         this.canvas = this.querySelector('#canvas');
         this.ctx = this.canvas.getContext('2d');
-        this.invaders = renderInvaders(this);
-        this.start = null;
+        // this.invaders = renderInvaders(this, this.isFirstImg);
     }
 
     connectedCallback () {
-        this.tick();
+        this.startTicking(1);
     }
 
     disconnectedCallback () {
         window.cancelAnimationFrame(this.reqId);
     }
 
-    tick = (timestamp = 0) => {
-        if (this.start === null) this.start = timestamp;
-        const elapsed = timestamp - this.start;
-        console.log(elapsed)
-
-        this.draw(this.ctx);
-        this.reqId = window.requestAnimationFrame(this.tick);
+    startTicking = (fps: number) => {
+        this.fpsInterval = 1000 / fps;
+        this.then = Date.now();
+        this.start = this.then;
+        this.tick();
     };
 
-    draw = (ctx: CanvasRenderingContext2D) => {
-        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    tick = () => {
+        this.reqId = window.requestAnimationFrame(this.tick);
+        const now = Date.now();
+        
+        if (this.then) {
+            const elapsed = now - this.then;
+
+            if (this.fpsInterval && elapsed > this.fpsInterval) {
+                this.then = now - (elapsed % this.fpsInterval);
+                this.isFirstImg = !this.isFirstImg;
+            }
+        }
+    };
+
+    draw = () => {
+        const { width, height } = this.ctx.canvas;
+
+        this.ctx.clearRect(0, 0, width, height);
+        this.invaders = renderInvaders(this, this.isFirstImg);
     };
 }
 
