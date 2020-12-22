@@ -1,4 +1,4 @@
-import { getGame, drawImg } from './app';
+import { getGame, drawImg, state } from './app';
 import { preloadImg } from './invader';
 import { sleep } from './utils';
 import Bullet from './bullet';
@@ -18,6 +18,7 @@ export default class Player {
     explode = () => {
         // cause explosion animation
         // pause
+        state.setIsPaused(true);
         this.game.removeEntity(this);
     };
 

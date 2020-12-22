@@ -157,12 +157,14 @@ class Header extends HTMLElement {
 }
 
 const isColliding = (a: Player | Invader, b: Bullet) => {
-    return !(
-        a.coordinates.x + 30 / 2 <= b.x - 3 / 2 ||
-        a.coordinates.y + 30 / 2 <= b.y - 6 / 2 ||
-        a.coordinates.x - 30 / 2 >= b.x + 3 / 2 ||
-        a.coordinates.y - 30 / 2 >= b.y + 6 / 2
-    );
+    if (a && b) {
+        return !(
+            a.coordinates.x + 30 / 2 <= b.x - 3 / 2 ||
+            a.coordinates.y + 30 / 2 <= b.y - 6 / 2 ||
+            a.coordinates.x - 30 / 2 >= b.x + 3 / 2 ||
+            a.coordinates.y - 30 / 2 >= b.y + 6 / 2
+        );
+    }
 };
 
 const createInvaders = (): Invader[] => {
@@ -230,12 +232,17 @@ export class Game extends HTMLElement {
 
     checkCollisions = () => {
         const { invaders, bullets } = this.entity;
+        const [player] = this.entity.players;
 
         // prettier-ignore
-        invaders.forEach((invader: Invader) => {
-            bullets.forEach((bullet: Bullet) => {
+        bullets.forEach((bullet: Bullet) => {
+            invaders.forEach((invader: Invader) => {
                 if (isColliding(invader, bullet) && bullet.shooter === 'player') {
                     invader.explode();
+                    this.removeEntity(bullet);
+                }
+                if (isColliding(player, bullet)) {
+                    player.explode();
                     this.removeEntity(bullet);
                 }
             });
