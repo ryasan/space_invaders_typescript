@@ -1,6 +1,7 @@
-import { Game } from './app';
+import { getGame, drawImg } from './app';
+import Bullet from './bullet';
 
-const preloadImg = (url: string) => {
+export const preloadImg = (url: string) => {
     return Object.assign(new Image(), { src: url });
 };
 
@@ -9,43 +10,46 @@ const [Img1, Img2] = [
     'https://i.postimg.cc/59Sw3j7V/invader-2.png'
 ].map(preloadImg);
 
-interface Coordinates {
-    x: number;
-    y: number;
-}
+const randomInt = (min = 1, max = 10) => {
+    return Math.floor(Math.random() * (max - min + 1) + min);
+};
 
 export default class Invader {
-    game: Game;
-    coordinates: Coordinates;
-    img = Img1;
+    coordinates: { x: number; y: number };
     isFirstImg = true;
-    x = 0;
+    img = Img1;
     speed = 1;
+    x = 0;
+    game = getGame();
 
-    constructor (game: Game, coordinates: Coordinates) {
-        this.game = game;
+    constructor (coordinates: { x: number; y: number }) {
         this.coordinates = coordinates;
     }
 
     update = () => {
         if (this.x < 0 || this.x > 580) {
             this.speed = -this.speed;
-            console.log(this.speed);
         }
         this.coordinates.x += this.speed;
         this.x += this.speed;
+
+        // give invader a 1 to 5000 chance of shooting a bullet per frame
+        if (randomInt(1, 5000) > 4999) {
+            this.game.addEntity(
+                new Bullet({
+                    x: this.coordinates.x,
+                    y: this.coordinates.y,
+                    speed: 5
+                })
+            );
+        }
     };
 
     draw = () => {
-        drawInvader(this.game.ctx, this);
+        drawImg(this.game.ctx, this);
     };
 
     toggleImg = () => {
-        this.isFirstImg = !this.isFirstImg;
-        this.img = this.isFirstImg ? Img1 : Img2;
+        this.img = this.img === Img1 ? Img2 : Img1;
     };
 }
-
-const drawInvader = function (ctx: CanvasRenderingContext2D, body: Invader) {
-    ctx.drawImage(body.img, body.coordinates.x, body.coordinates.y, 30, 30);
-};

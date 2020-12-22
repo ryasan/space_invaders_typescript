@@ -1,8 +1,23 @@
 import State, { Difficulty } from './state';
 import Invader from './invader';
 import Player from './player';
+import Bullet from './bullet';
 
 export let state: State;
+
+// prettier-ignore
+export const drawImg = (ctx: CanvasRenderingContext2D, body: Invader | Player) => {
+    ctx.drawImage(body.img, body.coordinates.x, body.coordinates.y, 30, 30);
+};
+
+export const getGame = () => {
+    return document.querySelector('#game') as Game;
+};
+
+export interface Coordinates {
+    x: number;
+    y: number;
+}
 
 const html = {
     gameOver: () => {
@@ -107,7 +122,7 @@ class StartMenu extends HTMLElement {
 }
 
 class Header extends HTMLElement {
-    controlBtns: HTMLElement;
+    controlBtns: any;
     resetBtn: HTMLElement;
     playBtn: HTMLElement;
     pauseBtn: HTMLElement;
@@ -130,7 +145,8 @@ class Header extends HTMLElement {
         this.startMenuBtn = Header.createBtn('MENU', () => loadStartMenu());
         this.playBtn = Header.createBtn('PLAY', this.play);
         this.pauseBtn = Header.createBtn('PAUSE', this.pause);
-        this.controlBtns = document.querySelector('#control-btns') as HTMLElement; // prettier-ignore
+
+        this.controlBtns = this.querySelector('#control-btns');
         this.controlBtns.append(this.startMenuBtn, this.resetBtn, this.playBtn);
     }
 
@@ -159,17 +175,19 @@ class Header extends HTMLElement {
     };
 }
 
-const createInvaders = (game: Game): Invader[] => {
+const createInvaders = (): Invader[] => {
     const invaders: Invader[] = [];
 
     for (let i = 0; i < 60; i++) {
         const x = 20 + (i % 12) * 50;
         const y = 20 + (i % 5) * 50;
-        invaders.push(new Invader(game, { x, y }));
+        invaders.push(new Invader({ x, y }));
     }
 
     return invaders;
 };
+
+type Entity = Player | Invader | Bullet;
 
 export class Game extends HTMLElement {
     ctx: CanvasRenderingContext2D;
@@ -191,17 +209,31 @@ export class Game extends HTMLElement {
             y: this.ctx.canvas.height
         };
 
-        this.entities = [...createInvaders(this), new Player()];
+        this.entities = [
+            ...createInvaders(),
+            new Player({
+                x: this.size.x / 2,
+                y: this.size.y - 30
+            })
+        ];
     }
 
     connectedCallback () {
-        this.draw();
         this.tick();
     }
 
     disconnectedCallback () {
         window.cancelAnimationFrame(this.reqId);
     }
+
+    addEntity = (entity: Entity) => {
+        this.entities.push(entity);
+    };
+
+    removeEntity = (entity: Entity) => {
+        const idx = this.entities.indexOf(entity);
+        if (idx !== -1) this.entities.splice(idx, 1);
+    };
 
     tick = () => {
         if (!state.isPaused) this.update();
@@ -238,6 +270,21 @@ export class Game extends HTMLElement {
     };
 }
 
+export const loadStartMenu = () => {
+    state = new State();
+    document.body.innerHTML = '<start-menu />';
+};
+
+export const loadGame = (difficulty = state.difficulty) => {
+    state.setDifficulty(difficulty);
+    state.setIsPaused(true);
+    document.body.innerHTML = `<game-map />`;
+};
+
+export const showGameOver = () => {
+    document.body.innerHTML += '<game-over />';
+};
+
 const components = [
     {
         tagName: 'start-menu',
@@ -264,20 +311,5 @@ const components = [
 components.forEach(c => {
     window.customElements.define(c.tagName, c.component);
 });
-
-export const loadStartMenu = () => {
-    state = new State();
-    document.body.innerHTML = '<start-menu />';
-};
-
-export const loadGame = (difficulty = state.difficulty) => {
-    state.setDifficulty(difficulty);
-    state.setIsPaused(true);
-    document.body.innerHTML = `<game-map />`;
-};
-
-export const showGameOver = () => {
-    document.body.innerHTML += '<game-over />';
-};
 
 window.addEventListener('load', loadStartMenu);
