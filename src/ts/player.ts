@@ -1,6 +1,7 @@
-import { getGame, drawImg, state } from './app';
+import 'regenerator-runtime/runtime'
+
+import { getGame, drawImg, state, sleep } from './app';
 import { preloadImg } from './invader';
-import { sleep } from './utils';
 import Bullet from './bullet';
 
 export default class Player {
@@ -9,6 +10,8 @@ export default class Player {
     game = getGame();
     keyboard: Keyboard;
     onCoolDown = false;
+    livesCount = 3;
+    scoreCount = 0;
 
     constructor (coordinates: { x: number; y: number }) {
         this.coordinates = coordinates;
@@ -22,11 +25,18 @@ export default class Player {
         this.game.removeEntity(this);
     };
 
+    scorePoints = async (): Promise<void> => {
+        for (let i = 1; i <= 10; i++) {
+            this.scoreCount++;
+            await sleep(25);
+        }
+    };
+
     update = () => {
-        if (this.keyboard.pressing.ArrowLeft && this.coordinates.x > 0) {
+        if (this.keyboard.pressing['ArrowLeft'] && this.coordinates.x > 0) {
             this.coordinates.x -= 5;
         }
-        if (this.keyboard.pressing.ArrowRight && this.coordinates.x < 1170) {
+        if (this.keyboard.pressing['ArrowRight'] && this.coordinates.x < 1170) {
             this.coordinates.x += 5;
         }
         if (!this.onCoolDown && this.keyboard.pressing[' ']) {
@@ -34,7 +44,7 @@ export default class Player {
             this.game.addEntity(
                 new Bullet({
                     x: this.coordinates.x,
-                    y: this.coordinates.y,
+                    y: this.coordinates.y - 35,
                     speed: -5,
                     shooter: 'player'
                 })
