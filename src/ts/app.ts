@@ -14,11 +14,6 @@ export const getGame = () => {
     return document.querySelector('#game') as Game;
 };
 
-export interface Coordinates {
-    x: number;
-    y: number;
-}
-
 const html = {
     gameOver: () => {
         return `
@@ -66,9 +61,6 @@ const html = {
             <top-header></top-header>
             <canvas id="canvas" width="1200" height="720"></canvas>
         `;
-    },
-    globalState: () => {
-        return '';
     }
 };
 
@@ -164,6 +156,15 @@ class Header extends HTMLElement {
     };
 }
 
+const isColliding = (a: Player, b: Bullet) => {
+    return !(
+        a.coordinates.x + 30 / 2 <= b.x - 3 / 2 ||
+        a.coordinates.y + 30 / 2 <= b.y - 6 / 2 ||
+        a.coordinates.x - 30 / 2 >= b.x + 3 / 2 ||
+        a.coordinates.y - 30 / 2 >= b.y + 6 / 2
+    );
+};
+
 const createInvaders = (): Invader[] => {
     const invaders: Invader[] = [];
 
@@ -221,7 +222,33 @@ export class Game extends HTMLElement {
 
     removeEntity = (entity: Entity) => {
         const idx = this.entities.indexOf(entity);
-        if (idx !== -1) this.entities.splice(idx, 1);
+        if (idx !== -1) {
+            this.entities.splice(idx, 1);
+        }
+    };
+
+    checkCollisions = () => {
+        for (let i = 0; i < this.entities.length; i++) {
+            for (let j = 0; j < this.entities.length; j++) {
+                if (
+                    this.entities[i] instanceof Player &&
+                    this.entities[j] instanceof Bullet &&
+                    this.entities[j].shooter === 'invader' &&
+                    isColliding(this.entities[i], this.entities[j])
+                ) {
+                    this.entities[i].explode();
+                }
+
+                if (
+                    this.entities[i] instanceof Invader &&
+                    this.entities[j] instanceof Bullet &&
+                    this.entities[j].shooter === 'player' &&
+                    isColliding(this.entities[i], this.entities[j])
+                ) {
+                    this.entities[i].explode();
+                }
+            }
+        }
     };
 
     tick = () => {
@@ -231,6 +258,7 @@ export class Game extends HTMLElement {
     };
 
     update = () => {
+        this.checkCollisions();
         for (let i = 0; i < this.entities.length; i++) {
             this.entities[i].update();
         }

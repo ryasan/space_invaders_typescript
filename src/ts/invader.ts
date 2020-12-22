@@ -26,6 +26,11 @@ export default class Invader {
         this.coordinates = coordinates;
     }
 
+    explode = () => {
+        // cause explosion animation
+        this.game.removeEntity(this);
+    };
+
     update = () => {
         if (this.x < 0 || this.x > 580) {
             this.speed = -this.speed;
@@ -39,7 +44,8 @@ export default class Invader {
                 new Bullet({
                     x: this.coordinates.x,
                     y: this.coordinates.y,
-                    speed: 5
+                    speed: 5,
+                    shooter: 'invader'
                 })
             );
         }
