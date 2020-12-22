@@ -1,29 +1,23 @@
-import { getGame, drawImg } from './app';
+import { getGame, drawImg, randomInt, preloadImg } from './app';
 import Bullet from './bullet';
-
-export const preloadImg = (url: string) => {
-    return Object.assign(new Image(), { src: url });
-};
-
-const [Img1, Img2] = [
-    'https://i.postimg.cc/XqLd7DGJ/invader-1.png',
-    'https://i.postimg.cc/59Sw3j7V/invader-2.png'
-].map(preloadImg);
-
-const randomInt = (min = 1, max = 10) => {
-    return Math.floor(Math.random() * (max - min + 1) + min);
-};
 
 export default class Invader {
     coordinates: { x: number; y: number };
     isFirstImg = true;
-    img = Img1;
+    images: HTMLImageElement[];
+    img: HTMLImageElement;
     speed = 1;
     x = 0;
     game = getGame();
 
     constructor (coordinates: { x: number; y: number }) {
         this.coordinates = coordinates;
+
+        this.images = [
+            'https://i.postimg.cc/XqLd7DGJ/invader-1.png',
+            'https://i.postimg.cc/59Sw3j7V/invader-2.png'
+        ].map(preloadImg);
+        this.img = this.images[0];
     }
 
     explode = () => {
@@ -56,6 +50,7 @@ export default class Invader {
     };
 
     toggleImg = () => {
+        const [Img1, Img2] = this.images;
         this.img = this.img === Img1 ? Img2 : Img1;
     };
 }

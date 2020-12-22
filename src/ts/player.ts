@@ -1,7 +1,6 @@
 import 'regenerator-runtime/runtime'
 
-import { getGame, drawImg, state, sleep } from './app';
-import { preloadImg } from './invader';
+import { getGame, drawImg, state, sleep, preloadImg } from './app';
 import Bullet from './bullet';
 
 export default class Player {

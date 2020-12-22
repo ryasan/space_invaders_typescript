@@ -7,17 +7,25 @@ import StartMenu, { StartMenuBtn } from './start-menu';
 
 export let state: State;
 
-// prettier-ignore
-export const drawImg = (ctx: CanvasRenderingContext2D, body: Invader | Player) => {
-    ctx.drawImage(body.img, body.coordinates.x, body.coordinates.y, 30, 30);
-};
-
 export const getGame = () => {
     return document.querySelector('#game') as Game;
 };
 
 export const sleep = (ms = 0): Promise<void> => {
     return new Promise(resolve => setTimeout(resolve, ms));
+};
+
+export const randomInt = (min = 1, max = 10) => {
+    return Math.floor(Math.random() * (max - min + 1) + min);
+};
+
+export const preloadImg = (url: string) => {
+    return Object.assign(new Image(), { src: url });
+};
+
+// prettier-ignore
+export const drawImg = (ctx: CanvasRenderingContext2D, body: Invader | Player) => {
+    ctx.drawImage(body.img, body.coordinates.x, body.coordinates.y, 30, 30);
 };
 
 export const loadGame = (difficulty = state.difficulty) => {
@@ -125,6 +133,7 @@ export class Game extends HTMLElement {
 
     addEntity = (entity: Entity) => {
         const type: any = entity.constructor.name.toLowerCase() + 's';
+
         this.entity[type].push(entity);
     };
 
@@ -132,33 +141,16 @@ export class Game extends HTMLElement {
         const type: any = entity.constructor.name.toLowerCase() + 's';
         const idx = this.entity[type].indexOf(entity);
 
-        if (idx !== -1) {
-            this.entity[type].splice(idx, 1);
-        }
-    };
-
-    checkCollisions = () => {
-        const { invaders, bullets } = this.entity;
-        const [player] = this.entity.players;
-
-        // prettier-ignore
-        bullets.forEach((bullet: Bullet) => {
-            invaders.forEach((invader: Invader) => {
-                if (Game.isColliding(invader, bullet) && bullet.shooter === 'player') {
-                    invader.explode();
-                    this.removeEntity(bullet);
-                }
-                if (Game.isColliding(player, bullet)) {
-                    player.explode();
-                    this.removeEntity(bullet);
-                }
-            });
-        });
+        if (idx !== -1) this.entity[type].splice(idx, 1);
     };
 
     tick = () => {
-        if (!state.isPaused) this.update();
-        this.draw();
+        if (!state.isPaused) {
+            this.update();
+            this.draw();
+        } else {
+            this.draw();
+        }
 
         this.reqId = window.requestAnimationFrame(this.tick);
     };
@@ -184,15 +176,35 @@ export class Game extends HTMLElement {
         const elapsed = now - this.then;
         const intervalReached = elapsed > 1000;
 
-        if (intervalReached) {
-            this.then = now - (elapsed % 1000);
-        }
+        if (intervalReached) this.then = now - (elapsed % 1000);
 
         this.getEntities().forEach((entity: Entity) => {
             entity.draw();
             if (intervalReached && entity instanceof Invader) {
                 entity.toggleImg();
             }
+        });
+    };
+
+    checkCollisions = () => {
+        const { invaders, bullets } = this.entity;
+        const [player] = this.entity.players;
+
+        // prettier-ignore
+        bullets.forEach((bullet: Bullet) => {
+            invaders.forEach((invader: Invader) => {
+                if (Game.isColliding(invader, bullet) && bullet.shooter === 'player') {
+                    // remove bullet
+                    // explode invader
+                    // score points
+                    invader.explode();
+                    this.removeEntity(bullet);
+                }
+                if (Game.isColliding(player, bullet)) {
+                    player.explode();
+                    this.removeEntity(bullet);
+                }
+            });
         });
     };
 }
