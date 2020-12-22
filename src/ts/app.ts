@@ -1,10 +1,7 @@
 import State, { Difficulty } from './state';
 import Invader from './invader';
 
-// prettier-ignore
-export const GAME_OVER = 'GAME_OVER',
-             START_MENU = 'START_MENU',
-             NEW_GAME = 'NEW_GAME';
+export let state: State;
 
 const html = {
     gameOver: () => {
@@ -53,14 +50,15 @@ const html = {
             <top-header></top-header>
             <canvas id="canvas" width="1200" height="720"></canvas>
         `;
+    },
+    globalState: () => {
+        return '';
     }
 };
 
 const keys = { LEFT: 37, RIGHT: 39, DOWN: 40, SPACE: 32 };
 
 const onKeydown = (e: KeyboardEvent): void => {
-    const state = (document.querySelector('#game') as Game).state;
-
     if (!state.isPaused) {
         if (e.keyCode === keys.LEFT) console.log('move left');
         if (e.keyCode === keys.RIGHT) console.log('move right');
@@ -86,16 +84,16 @@ class StartMenuBtn extends HTMLElement {
         this.innerHTML = html.startMenuBtn(this.difficulty);
     }
 
-    renderNewScreen = () => {
-        renderScreen(NEW_GAME);
+    loadGame = () => {
+        loadGame(this.difficulty);
     };
 
     connectedCallback () {
-        this.addEventListener('click', this.renderNewScreen);
+        this.addEventListener('click', this.loadGame);
     }
 
     disconnectedCallback () {
-        this.removeEventListener('click', this.renderNewScreen);
+        this.removeEventListener('click', this.loadGame);
     }
 }
 
@@ -113,7 +111,6 @@ class Header extends HTMLElement {
     playBtn: HTMLElement;
     pauseBtn: HTMLElement;
     startMenuBtn: HTMLElement;
-    state: State;
 
     static createBtn = (text: string, onclick: () => void) => {
         return Object.assign(document.createElement('button'), {
@@ -128,15 +125,12 @@ class Header extends HTMLElement {
         this.id = 'header';
         this.innerHTML = html.header();
 
-        this.resetBtn = Header.createBtn('RESET', this.reset);
+        this.resetBtn = Header.createBtn('RESET', () => loadGame());
+        this.startMenuBtn = Header.createBtn('MENU', () => loadStartMenu());
         this.playBtn = Header.createBtn('PLAY', this.play);
         this.pauseBtn = Header.createBtn('PAUSE', this.pause);
-        this.startMenuBtn = Header.createBtn('MENU', this.goToStartMenu);
-
         this.controlBtns = document.querySelector('#control-btns') as HTMLElement; // prettier-ignore
         this.controlBtns.append(this.startMenuBtn, this.resetBtn, this.playBtn);
-
-        this.state = (document.querySelector('#game') as Game).state;
     }
 
     connectedCallback () {
@@ -149,7 +143,7 @@ class Header extends HTMLElement {
 
     pause = (): void => {
         if (this.controlBtns.contains(this.pauseBtn)) {
-            this.state.setIsPaused(true);
+            state.setIsPaused(true);
             this.controlBtns.appendChild(this.playBtn);
             this.controlBtns.removeChild(this.pauseBtn);
         }
@@ -157,18 +151,10 @@ class Header extends HTMLElement {
 
     play = (): void => {
         if (this.controlBtns.contains(this.playBtn)) {
-            this.state.setIsPaused(false);
+            state.setIsPaused(false);
             this.controlBtns.appendChild(this.pauseBtn);
             this.controlBtns.removeChild(this.playBtn);
         }
-    };
-
-    goToStartMenu = (): void => {
-        renderScreen(START_MENU);
-    };
-
-    reset = (): void => {
-        renderScreen(NEW_GAME);
     };
 }
 
@@ -186,9 +172,7 @@ const createInvaders = (game: Game): Invader[] => {
 
 export class Game extends HTMLElement {
     canvas: any;
-    difficulty: any;
     ctx: CanvasRenderingContext2D;
-    state: State;
     invaders: Invader[] = [];
     reqId = 0;
     then = Date.now();
@@ -199,19 +183,18 @@ export class Game extends HTMLElement {
         this.id = 'game';
         this.innerHTML = html.game();
 
-        this.difficulty = this.getAttribute('difficulty') || 'normal';
-        this.state = new State(this.difficulty);
-
         this.canvas = this.querySelector('#canvas');
         this.ctx = this.canvas.getContext('2d');
         this.size = {
             x: this.ctx.canvas.width,
             y: this.ctx.canvas.height
         };
+
         this.invaders = createInvaders(this);
     }
 
     connectedCallback () {
+        this.draw();
         this.tick();
     }
 
@@ -220,8 +203,15 @@ export class Game extends HTMLElement {
     }
 
     tick = () => {
+        if (!state.isPaused) this.update();
         this.draw();
         this.reqId = window.requestAnimationFrame(this.tick);
+    };
+
+    update = () => {
+        for (let i = 0; i < this.invaders.length; i++) {
+            this.invaders[i].update();
+        }
     };
 
     draw = () => {
@@ -230,10 +220,10 @@ export class Game extends HTMLElement {
         // flip invader arms animation after 1500ms
         const now = Date.now();
         const elapsed = now - this.then;
-        const intervalReached = elapsed > 1500;
+        const intervalReached = elapsed > 1000;
 
         if (intervalReached) {
-            this.then = now - (elapsed % 1500);
+            this.then = now - (elapsed % 1000);
         }
 
         for (let i = 0; i < this.invaders.length; i++) {
@@ -242,22 +232,6 @@ export class Game extends HTMLElement {
         }
     };
 }
-
-export const renderScreen = (screen: string): any => {
-    switch (screen) {
-        case NEW_GAME:
-            document.body.innerHTML = '<game-start></game-start>';
-            break;
-        case START_MENU:
-            document.body.innerHTML = '<start-menu></start-menu>';
-            break;
-        case GAME_OVER:
-            document.body.innerHTML += '<game-over></game-over>';
-            break;
-        default:
-            throw Error('oops');
-    }
-};
 
 const components = [
     {
@@ -269,7 +243,7 @@ const components = [
         component: StartMenuBtn
     },
     {
-        tagName: 'game-start',
+        tagName: 'game-map',
         component: Game
     },
     {
@@ -286,6 +260,19 @@ components.forEach(c => {
     window.customElements.define(c.tagName, c.component);
 });
 
-window.addEventListener('load', () => {
-    renderScreen(START_MENU);
-});
+export const loadStartMenu = () => {
+    state = new State();
+    document.body.innerHTML = '<start-menu />';
+};
+
+export const loadGame = (difficulty = state.difficulty) => {
+    state.setDifficulty(difficulty);
+    state.setIsPaused(true);
+    document.body.innerHTML = `<game-map />`;
+};
+
+export const showGameOver = () => {
+    document.body.innerHTML += '<game-over />';
+};
+
+window.addEventListener('load', loadStartMenu);

@@ -2,12 +2,15 @@ export type Difficulty = 'easy' | 'normal' | 'hard';
 
 export default class State {
     isPaused = true;
-    difficulty: Difficulty = 'normal';
-    speed = { easy: 1250, normal: 750, hard: 250 };
+    difficulty: Difficulty;
 
-    constructor (difficulty: Difficulty) {
+    constructor (difficulty = 'normal' as Difficulty) {
         this.difficulty = difficulty;
     }
+
+    setDifficulty = (difficulty: Difficulty) => {
+        this.difficulty = difficulty;
+    };
 
     togglePause = (): void => {
         this.isPaused = !this.isPaused;

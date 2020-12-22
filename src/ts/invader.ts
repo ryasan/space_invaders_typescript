@@ -1,6 +1,13 @@
 import { Game } from './app';
-import Img1 from '../images/invader-1.png';
-import Img2 from '../images/invader-2.png';
+
+const preloadImg = (url: string) => {
+    return Object.assign(new Image(), { src: url });
+};
+
+const [Img1, Img2] = [
+    'https://i.postimg.cc/XqLd7DGJ/invader-1.png',
+    'https://i.postimg.cc/59Sw3j7V/invader-2.png'
+].map(preloadImg);
 
 interface Coordinates {
     x: number;
@@ -8,32 +15,36 @@ interface Coordinates {
 }
 
 export default class Invader {
-    img = new Image();
     game: Game;
-    center: Coordinates;
+    coordinates: Coordinates;
+    img = Img1;
     isFirstImg = true;
+    x = 0;
+    speed = 1;
 
-    constructor (game: Game, center: Coordinates) {
+    constructor (game: Game, coordinates: Coordinates) {
         this.game = game;
-        this.center = center;
-        this.img.src = Img1;
+        this.coordinates = coordinates;
     }
 
+    update = () => {
+        if (this.x < 0 || this.x > 580) {
+            this.speed = -this.speed;
+        }
+        this.coordinates.x += this.speed;
+        this.x += this.speed;
+    };
+
     draw = () => {
-        drawRect(this.game.ctx, this);
-        // this.img.src = this.isFirstImg ? Img1 : Img2;
-        // this.img.onload = () => {
-        //     const { x, y } = this.coordinates;
-        //     this.game.screen.drawImage(this.img, x, y, 30, 30);
-        // };
+        drawInvader(this.game.ctx, this);
     };
 
     toggleImg = () => {
         this.isFirstImg = !this.isFirstImg;
-        this.img.src = this.isFirstImg ? Img1 : Img2;
+        this.img = this.isFirstImg ? Img1 : Img2;
     };
 }
 
-const drawRect = function (ctx: CanvasRenderingContext2D, body: Invader) {
-    ctx.drawImage(body.img, body.center.x, body.center.y, 30, 30);
+const drawInvader = function (ctx: CanvasRenderingContext2D, body: Invader) {
+    ctx.drawImage(body.img, body.coordinates.x, body.coordinates.y, 30, 30);
 };
