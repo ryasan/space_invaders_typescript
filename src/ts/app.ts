@@ -1,5 +1,6 @@
 import State, { Difficulty } from './state';
 import Invader from './invader';
+import Player from './player';
 
 export let state: State;
 
@@ -171,12 +172,12 @@ const createInvaders = (game: Game): Invader[] => {
 };
 
 export class Game extends HTMLElement {
-    canvas: any;
     ctx: CanvasRenderingContext2D;
-    invaders: Invader[] = [];
-    reqId = 0;
-    then = Date.now();
+    canvas: any;
+    entities: any[] = [];
     size: { x: number; y: number };
+    then = Date.now();
+    reqId = 0;
 
     constructor () {
         super();
@@ -190,7 +191,7 @@ export class Game extends HTMLElement {
             y: this.ctx.canvas.height
         };
 
-        this.invaders = createInvaders(this);
+        this.entities = [...createInvaders(this), new Player()];
     }
 
     connectedCallback () {
@@ -209,8 +210,8 @@ export class Game extends HTMLElement {
     };
 
     update = () => {
-        for (let i = 0; i < this.invaders.length; i++) {
-            this.invaders[i].update();
+        for (let i = 0; i < this.entities.length; i++) {
+            this.entities[i].update();
         }
     };
 
@@ -226,9 +227,13 @@ export class Game extends HTMLElement {
             this.then = now - (elapsed % 1000);
         }
 
-        for (let i = 0; i < this.invaders.length; i++) {
-            this.invaders[i].draw();
-            if (intervalReached) this.invaders[i].toggleImg();
+        for (let i = 0; i < this.entities.length; i++) {
+            this.entities[i].draw();
+            if (intervalReached) {
+                if (this.entities[i] instanceof Invader) {
+                    this.entities[i].toggleImg();
+                }
+            }
         }
     };
 }

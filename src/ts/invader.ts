@@ -30,6 +30,7 @@ export default class Invader {
     update = () => {
         if (this.x < 0 || this.x > 580) {
             this.speed = -this.speed;
+            console.log(this.speed);
         }
         this.coordinates.x += this.speed;
         this.x += this.speed;
