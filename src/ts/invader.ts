@@ -33,8 +33,8 @@ export default class Invader {
         this.coordinates.x += this.speed;
         this.x += this.speed;
 
-        // give invader a 1 to 5000 chance of shooting a bullet per frame
-        if (randomInt(1, 5000) > 4999) {
+        // give invader a 1 to 2000 chance of shooting a bullet per frame
+        if (randomInt(1, 2000) > 1999) {
             this.game.addEntity(
                 new Bullet({
                     x: this.coordinates.x,

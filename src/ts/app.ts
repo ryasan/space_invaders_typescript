@@ -72,17 +72,6 @@ const html = {
     }
 };
 
-const keys = { LEFT: 37, RIGHT: 39, DOWN: 40, SPACE: 32 };
-
-const onKeydown = (e: KeyboardEvent): void => {
-    if (!state.isPaused) {
-        if (e.keyCode === keys.LEFT) console.log('move left');
-        if (e.keyCode === keys.RIGHT) console.log('move right');
-        if (e.keyCode === keys.DOWN) console.log('move down');
-        if (e.keyCode === keys.SPACE) console.log('fire');
-    }
-};
-
 class GameOver extends HTMLElement {
     constructor () {
         super();
