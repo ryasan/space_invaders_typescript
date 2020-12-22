@@ -156,7 +156,7 @@ class Header extends HTMLElement {
     };
 }
 
-const isColliding = (a: Player, b: Bullet) => {
+const isColliding = (a: Player | Invader, b: Bullet) => {
     return !(
         a.coordinates.x + 30 / 2 <= b.x - 3 / 2 ||
         a.coordinates.y + 30 / 2 <= b.y - 6 / 2 ||
@@ -182,10 +182,10 @@ type Entity = Player | Invader | Bullet;
 export class Game extends HTMLElement {
     ctx: CanvasRenderingContext2D;
     canvas: any;
-    entities: any[] = [];
     size: { x: number; y: number };
     then = Date.now();
     reqId = 0;
+    entity: any;
 
     constructor () {
         super();
@@ -199,13 +199,11 @@ export class Game extends HTMLElement {
             y: this.ctx.canvas.height
         };
 
-        this.entities = [
-            ...createInvaders(),
-            new Player({
-                x: this.size.x / 2,
-                y: this.size.y - 30
-            })
-        ];
+        this.entity = {
+            bullets: [],
+            invaders: createInvaders(),
+            players: [new Player({ x: this.size.x / 2, y: this.size.y - 30 })]
+        };
     }
 
     connectedCallback () {
@@ -217,51 +215,51 @@ export class Game extends HTMLElement {
     }
 
     addEntity = (entity: Entity) => {
-        this.entities.push(entity);
+        const type: any = entity.constructor.name.toLowerCase() + 's';
+        this.entity[type].push(entity);
     };
 
     removeEntity = (entity: Entity) => {
-        const idx = this.entities.indexOf(entity);
+        const type: any = entity.constructor.name.toLowerCase() + 's';
+        const idx = this.entity[type].indexOf(entity);
+
         if (idx !== -1) {
-            this.entities.splice(idx, 1);
+            this.entity[type].splice(idx, 1);
         }
     };
 
     checkCollisions = () => {
-        for (let i = 0; i < this.entities.length; i++) {
-            for (let j = 0; j < this.entities.length; j++) {
-                if (
-                    this.entities[i] instanceof Player &&
-                    this.entities[j] instanceof Bullet &&
-                    this.entities[j].shooter === 'invader' &&
-                    isColliding(this.entities[i], this.entities[j])
-                ) {
-                    this.entities[i].explode();
-                }
+        const { invaders, bullets } = this.entity;
 
-                if (
-                    this.entities[i] instanceof Invader &&
-                    this.entities[j] instanceof Bullet &&
-                    this.entities[j].shooter === 'player' &&
-                    isColliding(this.entities[i], this.entities[j])
-                ) {
-                    this.entities[i].explode();
+        // prettier-ignore
+        invaders.forEach((invader: Invader) => {
+            bullets.forEach((bullet: Bullet) => {
+                if (isColliding(invader, bullet) && bullet.shooter === 'player') {
+                    invader.explode();
+                    this.removeEntity(bullet);
                 }
-            }
-        }
+            });
+        });
     };
 
     tick = () => {
         if (!state.isPaused) this.update();
         this.draw();
+
         this.reqId = window.requestAnimationFrame(this.tick);
+    };
+
+    getEntities = (): any => {
+        return Object.values(this.entity).reduce((a: any, v: any) => {
+            return [...a, ...v];
+        }, []);
     };
 
     update = () => {
         this.checkCollisions();
-        for (let i = 0; i < this.entities.length; i++) {
-            this.entities[i].update();
-        }
+        this.getEntities().forEach((entity: Entity) => {
+            entity.update();
+        });
     };
 
     draw = () => {
@@ -276,14 +274,12 @@ export class Game extends HTMLElement {
             this.then = now - (elapsed % 1000);
         }
 
-        for (let i = 0; i < this.entities.length; i++) {
-            this.entities[i].draw();
-            if (intervalReached) {
-                if (this.entities[i] instanceof Invader) {
-                    this.entities[i].toggleImg();
-                }
+        this.getEntities().forEach((entity: Entity) => {
+            entity.draw();
+            if (intervalReached && entity instanceof Invader) {
+                entity.toggleImg();
             }
-        }
+        });
     };
 }
 
