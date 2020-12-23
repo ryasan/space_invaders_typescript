@@ -24,8 +24,7 @@ $ship-height: 50px;
 
 html,
 body {
-    font-family: 'Press Start 2P', cursive;
-    // font-size: 10px;
+    font-family: 'Press Start 2P', Arial, Helvetica, sans-serif;
 }
 
 body {
@@ -240,6 +239,7 @@ a {
 .menu__title {
     color: $cyan;
     font-size: 6.5vw;
+    text-shadow: 5px 5px white;
     text-transform: uppercase;
 }
 

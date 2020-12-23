@@ -1,19 +1,18 @@
-import 'regenerator-runtime/runtime'
+import 'regenerator-runtime/runtime';
 
-import { getGame, drawImg, state, sleep, preloadImg } from './app';
+import { getGame, drawImg, state, sleep } from './app';
 import Bullet from './bullet';
 
 export default class Player {
-    coordinates: { x: number; y: number };
-    img = preloadImg('https://i.postimg.cc/X7n5n7px/player.png');
+    destination: { x: number; y: number };
     game = getGame();
     keyboard: Keyboard;
     onCoolDown = false;
     livesCount = 3;
     scoreCount = 0;
 
-    constructor (coordinates: { x: number; y: number }) {
-        this.coordinates = coordinates;
+    constructor (destination: { x: number; y: number }) {
+        this.destination = destination;
         this.keyboard = new Keyboard();
     }
 
@@ -32,20 +31,22 @@ export default class Player {
     };
 
     update = () => {
-        if (this.keyboard.pressing['ArrowLeft'] && this.coordinates.x > 0) {
-            this.coordinates.x -= 5;
+        if (this.keyboard.pressing['ArrowLeft'] && this.destination.x > 0) {
+            this.destination.x -= 5;
         }
-        if (this.keyboard.pressing['ArrowRight'] && this.coordinates.x < 1170) {
-            this.coordinates.x += 5;
+        if (this.keyboard.pressing['ArrowRight'] && this.destination.x < 1170) {
+            this.destination.x += 5;
         }
         if (!this.onCoolDown && this.keyboard.pressing[' ']) {
             this.onCoolDown = true;
             this.game.addEntity(
                 new Bullet({
-                    x: this.coordinates.x,
-                    y: this.coordinates.y - 35,
                     speed: -5,
-                    shooter: 'player'
+                    shooter: 'player',
+                    destination: {
+                        x: this.destination.x,
+                        y: this.destination.y - 35
+                    }
                 })
             );
             sleep(200).then(() => (this.onCoolDown = false));
@@ -53,7 +54,7 @@ export default class Player {
     };
 
     draw = () => {
-        drawImg(this.game.ctx, this);
+        drawImg(this.game.ctx, { x: 0, y: 240 }, this.destination);
     };
 }
 

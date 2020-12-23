@@ -4,6 +4,19 @@ import Player from './player';
 import Bullet from './bullet';
 import Header from './header';
 import StartMenu, { StartMenuBtn } from './start-menu';
+import Explosion from './explosion';
+
+const spriteSheet = Object.assign(new Image(), {
+    src: 'https://i.postimg.cc/YC0dkRm8/sprite-sheet.png'
+});
+
+export const ship = {
+    spriteWidth: 110,
+    spriteHeight: 110,
+    width: 30,
+    height: 30
+};
+export const bullet = { width: 3, height: 6 };
 
 export let state: State;
 
@@ -23,9 +36,22 @@ export const preloadImg = (url: string) => {
     return Object.assign(new Image(), { src: url });
 };
 
-// prettier-ignore
-export const drawImg = (ctx: CanvasRenderingContext2D, body: Invader | Player) => {
-    ctx.drawImage(body.img, body.coordinates.x, body.coordinates.y, 30, 30);
+export const drawImg = (
+    ctx: CanvasRenderingContext2D,
+    sprite: { x: number; y: number },
+    destination: { x: number; y: number }
+) => {
+    ctx.drawImage(
+        spriteSheet,
+        sprite.x,
+        sprite.y,
+        ship.spriteWidth,
+        ship.spriteHeight,
+        destination.x,
+        destination.y,
+        ship.width,
+        ship.height
+    );
 };
 
 export const loadGame = (difficulty = state.difficulty) => {
@@ -45,7 +71,7 @@ export const showGameOver = () => {
 
 export type Difficulty = 'easy' | 'normal' | 'hard';
 
-type Entity = Player | Invader | Bullet;
+type Entity = Player | Invader | Bullet | Explosion;
 
 class GameOver extends HTMLElement {
     constructor () {
@@ -72,6 +98,7 @@ export class Game extends HTMLElement {
     then = Date.now();
     reqId = 0;
     entity: any;
+    frameCount = 0;
 
     constructor () {
         super();
@@ -90,17 +117,18 @@ export class Game extends HTMLElement {
 
         this.entity = {
             bullets: [],
+            explosions: [],
             invaders: Game.createInvaders(),
             players: [
                 new Player({
                     x: this.size.x / 2,
-                    y: this.size.y - 30
+                    y: this.size.y - ship.height
                 })
             ]
         };
     }
 
-    static createInvaders = (): Invader[] => {
+    static createInvaders (): Invader[] {
         const invaders: Invader[] = [];
 
         for (let i = 0; i < 60; i++) {
@@ -110,18 +138,19 @@ export class Game extends HTMLElement {
         }
 
         return invaders;
-    };
+    }
 
-    static isColliding = (a: Player | Invader, b: Bullet) => {
+    // prettier-ignore
+    static isColliding (a: Player | Invader, b: Bullet) {
         if (a && b) {
             return !(
-                a.coordinates.x + 30 / 2 <= b.x - 3 / 2 ||
-                a.coordinates.y + 30 / 2 <= b.y - 6 / 2 ||
-                a.coordinates.x - 30 / 2 >= b.x + 3 / 2 ||
-                a.coordinates.y - 30 / 2 >= b.y + 6 / 2
+                a.destination.x + ship.width / 2 <= b.destination.x - bullet.width / 2 ||
+                a.destination.y + ship.height / 2 <= b.destination.y - bullet.height / 2 ||
+                a.destination.x - ship.width / 2 >= b.destination.x + bullet.width / 2 ||
+                a.destination.y - ship.height / 2 >= b.destination.y + bullet.height / 2
             );
         }
-    };
+    }
 
     connectedCallback () {
         this.tick();
@@ -170,19 +199,10 @@ export class Game extends HTMLElement {
 
     draw = () => {
         this.ctx.clearRect(0, 0, this.size.x, this.size.y);
-
-        // flip invader arms animation after 1500ms
-        const now = Date.now();
-        const elapsed = now - this.then;
-        const intervalReached = elapsed > 1000;
-
-        if (intervalReached) this.then = now - (elapsed % 1000);
+        this.frameCount = (this.frameCount + 1) % 60;
 
         this.getEntities().forEach((entity: Entity) => {
-            entity.draw();
-            if (intervalReached && entity instanceof Invader) {
-                entity.toggleImg();
-            }
+            entity.draw(this.frameCount);
         });
     };
 

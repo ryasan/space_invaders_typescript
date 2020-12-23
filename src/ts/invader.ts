@@ -1,27 +1,25 @@
 import { getGame, drawImg, randomInt, preloadImg } from './app';
 import Bullet from './bullet';
+import Explosion from './explosion';
 
 export default class Invader {
-    coordinates: { x: number; y: number };
+    destination: { x: number; y: number };
     isFirstImg = true;
-    images: HTMLImageElement[];
-    img: HTMLImageElement;
     speed = 1;
     x = 0;
     game = getGame();
+    cycleIdx = 0;
+    cycle = [
+        { x: 0, y: 0 },
+        { x: 0, y: 120 }
+    ];
 
-    constructor (coordinates: { x: number; y: number }) {
-        this.coordinates = coordinates;
-
-        this.images = [
-            'https://i.postimg.cc/XqLd7DGJ/invader-1.png',
-            'https://i.postimg.cc/59Sw3j7V/invader-2.png'
-        ].map(preloadImg);
-        this.img = this.images[0];
+    constructor (destination: { x: number; y: number }) {
+        this.destination = destination;
     }
 
     explode = () => {
-        // cause explosion animation
+        this.game.addEntity(new Explosion());
         this.game.removeEntity(this);
     };
 
@@ -29,28 +27,28 @@ export default class Invader {
         if (this.x < 0 || this.x > 580) {
             this.speed = -this.speed;
         }
-        this.coordinates.x += this.speed;
+        this.destination.x += this.speed;
         this.x += this.speed;
 
         // give invader a 1 to 2000 chance of shooting a bullet per frame
         if (randomInt(1, 2000) > 1999) {
             this.game.addEntity(
                 new Bullet({
-                    x: this.coordinates.x,
-                    y: this.coordinates.y,
                     speed: 5,
-                    shooter: 'invader'
+                    shooter: 'invader',
+                    destination: {
+                        x: this.destination.x,
+                        y: this.destination.y
+                    }
                 })
             );
         }
     };
 
-    draw = () => {
-        drawImg(this.game.ctx, this);
-    };
-
-    toggleImg = () => {
-        const [Img1, Img2] = this.images;
-        this.img = this.img === Img1 ? Img2 : Img1;
+    draw = (frameCount: number) => {
+        if (frameCount === 30) {
+            this.cycleIdx = (this.cycleIdx + 1) % this.cycle.length;
+        }
+        drawImg(this.game.ctx, this.cycle[this.cycleIdx], this.destination);
     };
 }
