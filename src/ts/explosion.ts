@@ -1,4 +1,4 @@
-import { getGame } from './app';
+import Entity from './entity';
 
 // class Particle {
 //     x = 200;
@@ -9,9 +9,12 @@ import { getGame } from './app';
 //     };
 // }
 
-export default class Explosion {
-    coordinates = { x: 200, y: 200 };
-    game = getGame();
+export default class Explosion extends Entity {
+    type = 'bullet';
+
+    constructor (destination: { x: number; y: number }) {
+        super(destination);
+    }
 
     update = () => {
         // update

@@ -16,7 +16,7 @@ export default class State {
         this.isPaused = !this.isPaused;
     };
 
-    setIsPaused = (bool: boolean): void => {
+    setIsPaused = (bool = true): void => {
         this.isPaused = bool;
     };
 }

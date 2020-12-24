@@ -1,10 +1,14 @@
 type Fn = (args: any) => any;
 
-export default class Observer {
+class Observer {
+    observers = {
+        playerDeath: [] as Fn[],
+        invaderDeath: [] as Fn[]
+    };
     observerList: Fn[] = [];
 
-    subscribe = (...fn: Fn[]): void => {
-        this.observerList.push(...fn);
+    subscribe = (...fns: Fn[]): void => {
+        this.observerList.push(...fns);
     };
 
     unsubscribe = (fnToRemove: Fn): void => {
@@ -14,4 +18,13 @@ export default class Observer {
     notify = (props?: any): void => {
         this.observerList.forEach((fn: Fn) => fn(props));
     };
+}
+
+export default class Subject {
+    observer = new Observer();
+
+    observerList = this.observer.observerList;
+    subscribe = this.observer.subscribe;
+    unsubscribe = this.observer.unsubscribe;
+    notify = this.observer.notify;
 }

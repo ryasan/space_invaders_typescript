@@ -1,13 +1,11 @@
-import { getGame, drawImg, randomInt, preloadImg } from './app';
+import { drawImg, randomInt } from './app';
+import Entity from './entity';
 import Bullet from './bullet';
-import Explosion from './explosion';
 
-export default class Invader {
-    destination: { x: number; y: number };
-    isFirstImg = true;
+export default class Invader extends Entity {
     speed = 1;
     x = 0;
-    game = getGame();
+    type = 'invader';
     cycleIdx = 0;
     cycle = [
         { x: 0, y: 0 },
@@ -15,13 +13,8 @@ export default class Invader {
     ];
 
     constructor (destination: { x: number; y: number }) {
-        this.destination = destination;
+        super(destination);
     }
-
-    explode = () => {
-        this.game.addEntity(new Explosion());
-        this.game.removeEntity(this);
-    };
 
     update = () => {
         if (this.x < 0 || this.x > 580) {
@@ -33,14 +26,16 @@ export default class Invader {
         // give invader a 1 to 2000 chance of shooting a bullet per frame
         if (randomInt(1, 2000) > 1999) {
             this.game.addEntity(
-                new Bullet({
-                    speed: 5,
-                    shooter: 'invader',
-                    destination: {
+                new Bullet(
+                    {
                         x: this.destination.x,
                         y: this.destination.y
+                    },
+                    {
+                        speed: 5,
+                        shooter: 'invader'
                     }
-                })
+                )
             );
         }
     };

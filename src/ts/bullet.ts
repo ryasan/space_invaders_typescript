@@ -1,32 +1,27 @@
-import { getGame, bullet } from './app';
+import Entity from './entity';
 
 type Shooter = 'player' | 'invader';
 
 interface BulletProps {
-    destination: { x: number; y: number };
     speed: number;
     shooter: Shooter;
 }
 
-export default class Bullet {
-    destination: { x: number; y: number };
-    speed: number;
+export default class Bullet extends Entity {
     shooter: Shooter;
-    game = getGame();
+    speed: number;
+    type = 'bullet';
+    width = 3;
+    height = 6;
 
-    constructor (props: BulletProps) {
-        this.destination = props.destination;
+    constructor (destination: { x: number; y: number }, props: BulletProps) {
+        super(destination);
         this.speed = props.speed;
         this.shooter = props.shooter;
     }
 
-    explode = () => {
-        this.game.removeEntity(this);
-    };
-
     update = () => {
         this.destination.y += this.speed;
-
         if (this.destination.y > this.game.size.y || this.destination.y < 0) {
             this.game.removeEntity(this);
         }
@@ -37,8 +32,8 @@ export default class Bullet {
         this.game.ctx.fillRect(
             this.destination.x + 14,
             this.destination.y + 30,
-            bullet.width,
-            bullet.height
+            this.width,
+            this.height
         );
     };
 }

@@ -1,27 +1,20 @@
 import 'regenerator-runtime/runtime';
 
-import { getGame, drawImg, state, sleep } from './app';
+import { drawImg, sleep, invaderDeath } from './app';
+import Entity from './entity';
 import Bullet from './bullet';
 
-export default class Player {
-    destination: { x: number; y: number };
-    game = getGame();
-    keyboard: Keyboard;
+export default class Player extends Entity {
+    keyboard = new Keyboard();
     onCoolDown = false;
     livesCount = 3;
     scoreCount = 0;
+    type = 'player';
 
     constructor (destination: { x: number; y: number }) {
-        this.destination = destination;
-        this.keyboard = new Keyboard();
+        super(destination);
+        invaderDeath.subscribe(this.scorePoints);
     }
-
-    explode = () => {
-        // cause explosion animation
-        // pause
-        state.setIsPaused(true);
-        this.game.removeEntity(this);
-    };
 
     scorePoints = async (): Promise<void> => {
         for (let i = 1; i <= 10; i++) {
@@ -40,14 +33,16 @@ export default class Player {
         if (!this.onCoolDown && this.keyboard.pressing[' ']) {
             this.onCoolDown = true;
             this.game.addEntity(
-                new Bullet({
-                    speed: -5,
-                    shooter: 'player',
-                    destination: {
+                new Bullet(
+                    {
                         x: this.destination.x,
                         y: this.destination.y - 35
+                    },
+                    {
+                        speed: -5,
+                        shooter: 'player'
                     }
-                })
+                )
             );
             sleep(200).then(() => (this.onCoolDown = false));
         }
