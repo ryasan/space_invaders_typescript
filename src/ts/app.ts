@@ -126,8 +126,8 @@ class GameOver extends HTMLElement {
             </div>
         `;
 
-        this.playAgainBtn = htmlElement('#play-again-btn');
-        this.mainMenuBtn = htmlElement('#main-menu-btn');
+        this.playAgainBtn = this.querySelector('#play-again-btn') as HTMLElement; // prettier-ignore
+        this.mainMenuBtn = this.querySelector('#main-menu-btn') as HTMLElement;
     }
 
     connectedCallback () {

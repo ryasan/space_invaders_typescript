@@ -6,7 +6,8 @@ import {
     ship,
     bullet,
     EntityType,
-    Destination
+    Destination,
+    state
 } from './app';
 import Entity from './entity';
 import Bullet from './bullet';
@@ -47,6 +48,18 @@ export default class Invader extends Entity {
         });
     };
 
+    bulletFrequency = (): boolean => {
+        switch (state.difficulty) {
+            case 'easy':
+                return randomInt(1, 500) > 499;
+            case 'hard':
+                return randomInt(1, 100) > 99;
+            default:
+            case 'normal':
+                return randomInt(1, 300) > 299;
+        }
+    };
+
     update = () => {
         if (this.x < 0 || this.x > this.game.canvas.width / 2) {
             this.speed = -this.speed;
@@ -56,7 +69,7 @@ export default class Invader extends Entity {
 
         if (this.isBottom()) {
             // 1 in 300 chance of shooting bullet
-            if (randomInt(1, 300) > 299) {
+            if (this.bulletFrequency()) {
                 this.game.addEntity(
                     new Bullet(
                         {
