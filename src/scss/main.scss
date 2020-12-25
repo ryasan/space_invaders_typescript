@@ -53,10 +53,14 @@ a {
 }
 
 #header {
+    align-items: center;
     column-gap: 10px;
+    column-gap: 20px;
     display: grid;
+    font-size: 25px;
     grid-template-columns: 1fr 1fr 1fr;
     margin-top: 5%;
+    text-transform: uppercase;
     width: 100%;
 }
 
@@ -70,9 +74,7 @@ a {
 
 #canvas {
     border: 2px solid $cyan;
-    // height: 700px;
     margin-top: 5px;
-    // width: 1200px;
 }
 
 #container {

@@ -1,6 +1,13 @@
 import 'regenerator-runtime/runtime';
 
-import { drawImg, sleep, death, EntityCollection, ship, bullet } from './app';
+import {
+    drawImg,
+    sleep,
+    invaderDeath,
+    EntityCollection,
+    ship,
+    bullet
+} from './app';
 import Entity from './entity';
 import Bullet from './bullet';
 
@@ -9,18 +16,20 @@ export default class Player extends Entity {
     onCoolDown = false;
     livesCount = 3;
     scoreCount = 0;
+    scoreText = 0;
     w = ship.w;
     h = ship.h;
     collection: EntityCollection = 'ships';
 
     constructor (destination: { x: number; y: number }) {
         super(destination);
-        death.subscribe(this.scorePoints);
+        invaderDeath.subscribe(this.scorePoints);
     }
 
     scorePoints = async (): Promise<void> => {
         for (let i = 1; i <= 10; i++) {
             this.scoreCount++;
+            this.game.header.score.textContent = this.scoreCount.toString();
             await sleep(25);
         }
     };
@@ -35,7 +44,6 @@ export default class Player extends Entity {
         ) {
             this.destination.x += 5;
         }
-        // && this.keyboard.pressing[' ']
         if (!this.onCoolDown && this.keyboard.pressing[' ']) {
             this.onCoolDown = true;
             this.game.addEntity(
@@ -49,9 +57,7 @@ export default class Player extends Entity {
                     }
                 )
             );
-            sleep(200).then(() => {
-                this.onCoolDown = false;
-            });
+            sleep(200).then(() => (this.onCoolDown = false));
         }
     };
 

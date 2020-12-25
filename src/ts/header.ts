@@ -6,6 +6,7 @@ export default class Header extends HTMLElement {
     playBtn: HTMLElement;
     pauseBtn: HTMLElement;
     startMenuBtn: HTMLElement;
+    score: HTMLElement;
 
     static createBtn = (text: string, onclick: () => void) => {
         return Object.assign(document.createElement('button'), {
@@ -20,12 +21,15 @@ export default class Header extends HTMLElement {
         this.innerHTML = `
             <div id="control-btns"></div>
             <div id="score">
-                <span>Score: </span><span></span>
+                <span>Score: </span><span id="score-count">0</span>
             </div>
-            <div id="lives"></div>
+            <div id="lives">
+                <span>Lives</span>    
+            </div>
         `;
-
         this.id = 'header';
+
+        this.score = document.querySelector('#score-count') as HTMLElement;
 
         this.resetBtn = Header.createBtn('RESET', () => loadGame());
         this.startMenuBtn = Header.createBtn('MENU', () => loadStartMenu());

@@ -38,7 +38,7 @@ export const bullet = (() => {
     rX: number;
 };
 
-export let state: State, death: Subject;
+export let state: State, invaderDeath: Subject;
 
 export const getGame = () => {
     return document.querySelector('#game') as Game;
@@ -81,7 +81,7 @@ export const drawImg = (
 export const loadGame = (difficulty = state.difficulty) => {
     state.setDifficulty(difficulty);
     state.setIsPaused(true);
-    death = new Subject();
+    invaderDeath = new Subject();
 
     document.body.innerHTML = `<game-map />`;
 };
@@ -168,7 +168,7 @@ export class Game extends HTMLElement {
                 })
             ] as (Player & Invader)[]
         };
-        death.subscribe(this.removeEntities, this.explode);
+        invaderDeath.subscribe(this.removeEntities, this.explode);
     }
 
     static createInvaders (): Invader[] {
@@ -207,7 +207,7 @@ export class Game extends HTMLElement {
     }
 
     explode = (entity: EntityType) => {
-        // console.log(entity.destination);
+        console.log(entity.destination);
     };
 
     addEntity = (entity: EntityType) => {
@@ -263,10 +263,10 @@ export class Game extends HTMLElement {
             ships.forEach((ship: Player | Invader) => {
                 if (isColliding(ship, bullet)) {
                     if (ship instanceof Invader) {
-                        death.notify(ship, bullet);
+                        invaderDeath.notify(ship, bullet);
                     }
                     if (ship instanceof Player) {
-                        death.notify(ship, bullet);
+                        invaderDeath.notify(ship, bullet);
                         this.header.pause();
                     }
                 }
