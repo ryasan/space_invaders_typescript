@@ -3,17 +3,6 @@
 $cyan: #26c6da;
 $black: #0a0a0a;
 
-$col-width: 100px;
-$ship-width: 90px;
-$ship-height: 50px;
-
-@mixin base-ship {
-    background: $cyan;
-    border: 0;
-    height: $ship-height;
-    width: $ship-width;
-}
-
 *,
 *::before,
 *::after {
@@ -36,20 +25,8 @@ body {
     overflow: hidden;
 }
 
-ul {
-    list-style-type: none;
-}
-
 a {
     cursor: pointer;
-}
-
-#game-map {
-    align-items: center;
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    width: 1200px;
 }
 
 #header {
@@ -77,16 +54,6 @@ a {
     margin-top: 5px;
 }
 
-#container {
-    display: flex;
-    flex-direction: column;
-    height: calc(100% - 20px);
-    margin: 0 auto;
-    outline: 1px solid $cyan;
-    position: relative;
-    width: 1100px;
-}
-
 #score {
     display: flex;
     justify-content: center;
@@ -97,71 +64,6 @@ a {
     display: inline-block;
     min-width: 100px;
     text-align: center;
-}
-
-#earth {
-    align-items: flex-start;
-    display: flex;
-    flex: 1;
-    flex-direction: column;
-    justify-content: space-between;
-    overflow: hidden;
-    position: relative;
-    width: 100%;
-}
-
-#invader-column-list {
-    display: flex;
-    margin: 0;
-    padding: 0;
-    position: relative;
-}
-
-.invader-column {
-    align-items: center;
-    display: flex;
-    flex-direction: column;
-    width: $col-width;
-}
-
-.invader {
-    @include base-ship;
-
-    background:
-        url('https://i.postimg.cc/NjQ4VKPY/invader.gif') center
-        center/cover no-repeat;
-    margin-top: 10px;
-    position: relative;
-}
-
-#player-zone {
-    height: $ship-height;
-    width: 100%;
-}
-
-#player {
-    @include base-ship;
-
-    background:
-        url('https://i.postimg.cc/m2Yj8Yj8/player.png') center
-        center/cover no-repeat;
-    bottom: 0;
-    left: 499px;
-    position: absolute;
-}
-
-#gun {
-    height: 100%;
-    position: relative;
-    width: 100%;
-}
-
-.bullet {
-    background: white;
-    height: 20px;
-    position: absolute;
-    width: 6px;
-    z-index: 999;
 }
 
 #lives {
@@ -208,20 +110,6 @@ a {
     &:hover {
         background: $cyan;
         color: $black;
-    }
-}
-
-#instructions__movement {
-    align-items: center;
-    display: flex;
-    font-size: 25px;
-    justify-content: center;
-}
-
-.instructions__key {
-    &--down {
-        display: flex;
-        flex-direction: column;
     }
 }
 

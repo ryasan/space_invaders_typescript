@@ -8,6 +8,7 @@ import Bullet from './bullet';
 import Header from './header';
 import Explosion from './explosion';
 import StartMenu, { StartMenuBtn } from './start-menu';
+import ShootSound from '../audio/shoot';
 
 export type Difficulty = 'easy' | 'normal' | 'hard';
 
