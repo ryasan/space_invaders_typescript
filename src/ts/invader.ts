@@ -33,7 +33,7 @@ export default class Invader extends Entity {
 
     isBottom = (): boolean => {
         const { ships } = this.game.entity;
-        const copy = {
+        const clone = {
             destination: {
                 x: this.destination.x,
                 y: this.destination.y + this.h + 1
@@ -43,7 +43,7 @@ export default class Invader extends Entity {
         } as Invader;
 
         return ships.every((s: EntityType) => {
-            return !isColliding(s, copy);
+            return !isColliding(s, clone);
         });
     };
 

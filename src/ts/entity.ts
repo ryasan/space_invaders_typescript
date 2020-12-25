@@ -1,4 +1,4 @@
-import { Game, htmlElement } from "./app";
+import { Game, htmlElement } from './app';
 
 export default class Entity {
     game = htmlElement('#game') as Game;

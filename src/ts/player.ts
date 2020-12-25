@@ -5,10 +5,9 @@ import {
     ship,
     bullet,
     Destination,
-    showGameOver,
-    playerDeath,
     EntityType,
-    htmlElement
+    playerDeath,
+    showGameOver
 } from './app';
 import Entity from './entity';
 import Bullet from './bullet';
@@ -23,32 +22,25 @@ export default class Player extends Entity {
 
     constructor (destination: Destination) {
         super(destination);
-
-        playerDeath.subscribe(
-            // this.explode,
-            this.destroyHTML,
-            // this.destroyEntities,
-            this.game.header.pause
-        );
+        playerDeath.subscribe(this.destroy);
     }
 
     explode = () => {
-        // explosion animation
+        console.log('explode animation');
     };
 
-    destroyEntities = (props: { entities: EntityType[] }) => {        
-        const [, bullet] = props.entities;
-        this.game.destroyEntity(bullet);
-    };
-
-    destroyHTML = (props) => {
-        // const livesList = htmlElement('#lives-list');
-        console.log('test: ', props);
-        // if (livesList.childElementCount > 0) {
-        //     livesList.firstElementChild.remove()
-        // } else {
-        //     showGameOver();
-        // }
+    destroy = ({ entities }: { entities: EntityType[] }) => {
+        const livesList = document.querySelector('#lives-list') as HTMLElement;
+        this.game.header.pause();
+        
+        entities.forEach(this.game.destroyEntity);
+        playerDeath.unsubscribeAll();
+        livesList.firstElementChild?.remove();
+        
+        if (livesList.childElementCount <= 0) {
+            showGameOver();
+        }
+        
     };
 
     scorePoints = async (): Promise<void> => {

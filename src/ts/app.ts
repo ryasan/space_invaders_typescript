@@ -1,5 +1,4 @@
 import 'regenerator-runtime/runtime';
-import 'regenerator-runtime/runtime';
 
 import State from './state';
 import Subject from './observers';
@@ -81,6 +80,7 @@ export const loadGame = (difficulty = state.difficulty) => {
     state.setDifficulty(difficulty);
     state.setIsPaused(true);
     playerDeath = new Subject();
+
     document.body.innerHTML = `<game-map />`;
 };
 
@@ -90,11 +90,11 @@ export const loadStartMenu = () => {
 };
 
 export const showCountDown = () => {
-    document.body.innerHTML += '<count-down />';
+    (htmlElement('#game') as Game).appendChild(new CountDown());
 };
 
 export const showGameOver = () => {
-    document.body.innerHTML += '<game-over />';
+    (htmlElement('#game') as Game).appendChild(new GameOver());
 };
 
 export const isColliding = (a: EntityType, b: EntityType) => {
@@ -108,12 +108,15 @@ export const isColliding = (a: EntityType, b: EntityType) => {
 };
 
 class GameOver extends HTMLElement {
+    playAgainBtn: HTMLElement;
+    mainMenuBtn: HTMLElement;
+
     constructor () {
         super();
         this.id = 'modal';
         this.innerHTML = `
-            <div class="modal__inner">
-                <h1 class="modal__title">GAME OVER!</h1>
+            <div id="modal__inner">
+                <h1 id="modal__title">GAME OVER!</h1>
                 <button id="play-again-btn" class="btn">
                     PLAY AGAIN
                 </button>
@@ -122,6 +125,19 @@ class GameOver extends HTMLElement {
                 </button>
             </div>
         `;
+
+        this.playAgainBtn = htmlElement('#play-again-btn');
+        this.mainMenuBtn = htmlElement('#main-menu-btn');
+    }
+
+    connectedCallback () {
+        this.playAgainBtn.addEventListener('click', () => loadGame());
+        this.mainMenuBtn.addEventListener('click', () => loadStartMenu());
+    }
+
+    disconnectedCallback () {
+        this.playAgainBtn.removeEventListener('click', () => loadGame());
+        this.mainMenuBtn.removeEventListener('click', () => loadStartMenu());
     }
 }
 
@@ -131,9 +147,7 @@ class CountDown extends HTMLElement {
         this.id = 'modal';
         this.innerHTML = `
             <div id="modal__inner">
-                <h1 id="modal__title">
-                    STARTING IN <span>3</span>
-                </h1>
+                <h1 id="modal__title">3</h1>
             </div>
         `;
     }
@@ -143,9 +157,24 @@ class CountDown extends HTMLElement {
     }
 
     startCountDown = async (): Promise<void> => {
+        const game = htmlElement('#game') as Game;
+
         for (let i = 3; i >= 1; i--) {
-            (this.querySelector('span') as HTMLElement).textContent = i.toString(); // prettier-ignore
+            // prettier-ignore
+            (game
+                .querySelector('#modal h1') as HTMLElement)
+                .textContent = i.toString();
+
             await sleep(1000);
+        }
+
+        if (!game.entity.ships.find(s => s instanceof Player)) {
+            game.addEntity(
+                new Player({
+                    x: game.canvas.width / 2,
+                    y: game.canvas.height - ship.h
+                })
+            );
         }
 
         this.remove();
@@ -168,7 +197,6 @@ export class Game extends HTMLElement {
     header: Header;
     reqId = 0;
     frameCount = 0;
-    player: Player;
     entity: {
         bullets: Bullet[];
         explosions: Explosion[];
@@ -182,8 +210,8 @@ export class Game extends HTMLElement {
             <canvas
                 id="canvas"
                 width="${screen.w}"
-                height="${screen.h}"
-            ></canvas>
+                height="${screen.h}">
+            </canvas>
         `;
 
         this.id = 'game';
@@ -191,15 +219,16 @@ export class Game extends HTMLElement {
         this.canvas = htmlElement('#canvas') as HTMLCanvasElement;
         this.ctx = this.canvas.getContext('2d') as CanvasRenderingContext2D;
 
-        this.player = new Player({
-            x: this.canvas.width / 2,
-            y: this.canvas.height - ship.h
-        });
-
         this.entity = {
             bullets: [],
             explosions: [],
-            ships: [...Game.createInvaders(), this.player] as (Player & Invader)[] // prettier-ignore
+            ships: [
+                ...Game.createInvaders(),
+                new Player({
+                    x: this.canvas.width / 2,
+                    y: this.canvas.height - ship.h
+                })
+            ] as (Player & Invader)[]
         };
     }
 
@@ -223,16 +252,14 @@ export class Game extends HTMLElement {
         window.cancelAnimationFrame(this.reqId);
     }
 
-    addEntity = (entity: EntityType) => {
-        if (entity.collection === 'bullets') {
-            this.entity[entity.collection].push(entity as any);
-        }
+    addEntity = (e: EntityType) => {
+        this.entity[e.collection].push(e as any);
     };
 
-    destroyEntity = (entity: EntityType) => {
-        const idx = this.entity[entity.collection].indexOf(entity as any);
+    destroyEntity = (e: EntityType) => {
+        const idx = this.entity[e.collection].indexOf(e as any);
         if (idx !== -1) {
-            this.entity[entity.collection].splice(idx, 1);
+            this.entity[e.collection].splice(idx, 1);
         }
     };
 
@@ -278,11 +305,9 @@ export class Game extends HTMLElement {
                     if (s instanceof Invader && b.props.shooter === 'player') {
                         [s, b].forEach(this.destroyEntity);
                         s.explode();
-                        this.player.scorePoints();
                     }
                     if (s instanceof Player && b.props.shooter === 'invader') {
                         playerDeath.notify({ entities: [s, b] });
-                        // console.log('trigger');
                     }
                 }
             });

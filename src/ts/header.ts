@@ -1,5 +1,10 @@
-import { state, loadStartMenu, loadGame, htmlElement, Game, showCountDown } from './app';
-import Player from './player';
+import {
+    state,
+    loadStartMenu,
+    loadGame,
+    htmlElement,
+    showCountDown
+} from './app';
 
 export default class Header extends HTMLElement {
     controlBtns: any;
@@ -24,12 +29,12 @@ export default class Header extends HTMLElement {
                 <span>Score: </span><span id="score-count">0</span>
             </div>
             <div id="lives">
-                <span>Lives: </span>
-                <ul id="lives-list">
-                    <li class="life"></li>
-                    <li class="life"></li>
-                    <li class="life"></li>
-                </ul>
+                <div>Lives: </div>
+                <div id="lives-list">
+                    <div class="life"></div>
+                    <div class="life"></div>
+                    <div class="life"></div>
+                </div>
             </div>
         `;
         this.id = 'header';
@@ -60,7 +65,7 @@ export default class Header extends HTMLElement {
     };
 
     play = (): void => {
-        if (htmlElement('#lives-list').childElementCount > 0) {
+        if (htmlElement('#lives-list').childElementCount) {
             if (this.controlBtns.contains(this.playBtn)) {
                 showCountDown();
                 this.controlBtns.appendChild(this.pauseBtn);

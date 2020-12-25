@@ -1,4 +1,4 @@
-import { EntityCollection, Destination } from './app';
+import { EntityCollection, Destination, playerDeath } from './app';
 import Entity from './entity';
 
 type BulletProps = {
@@ -15,7 +15,12 @@ export default class Bullet extends Entity {
     constructor (destination: Destination, props: BulletProps) {
         super(destination);
         this.props = props;
+        playerDeath.subscribe(this.destroy);
     }
+
+    destroy = () => {
+        this.game.destroyEntity(this);
+    };
 
     update = () => {
         this.destination.y += this.props.speed;
