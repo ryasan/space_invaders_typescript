@@ -19,7 +19,9 @@ export default class Header extends HTMLElement {
         super();
         this.innerHTML = `
             <div id="control-btns"></div>
-            <div id="score"></div>
+            <div id="score">
+                <span>Score: </span><span></span>
+            </div>
             <div id="lives"></div>
         `;
 

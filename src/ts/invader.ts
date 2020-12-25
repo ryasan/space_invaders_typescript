@@ -1,11 +1,21 @@
-import { drawImg, randomInt } from './app';
+import {
+    drawImg,
+    randomInt,
+    EntityCollection,
+    isColliding,
+    ship,
+    bullet,
+    EntityType
+} from './app';
 import Entity from './entity';
 import Bullet from './bullet';
 
 export default class Invader extends Entity {
     speed = 1;
     x = 0;
-    type = 'invader';
+    w = ship.w;
+    h = ship.h;
+    collection: EntityCollection = 'ships';
     cycleIdx = 0;
     cycle = [
         { x: 0, y: 0 },
@@ -16,27 +26,44 @@ export default class Invader extends Entity {
         super(destination);
     }
 
+    isBottom = (): boolean => {
+        const { ships } = this.game.entity;
+        const copy = {
+            destination: {
+                x: this.destination.x,
+                y: this.destination.y + this.h + 1
+            },
+            w: this.w,
+            h: this.h
+        } as Invader;
+
+        return ships.every((s: EntityType) => {
+            return !isColliding(s, copy);
+        });
+    };
+
     update = () => {
-        if (this.x < 0 || this.x > 580) {
+        if (this.x < 0 || this.x > this.game.canvas.width / 2) {
             this.speed = -this.speed;
         }
         this.destination.x += this.speed;
         this.x += this.speed;
 
-        // give invader a 1 to 2000 chance of shooting a bullet per frame
-        if (randomInt(1, 2000) > 1999) {
-            this.game.addEntity(
-                new Bullet(
-                    {
-                        x: this.destination.x,
-                        y: this.destination.y
-                    },
-                    {
-                        speed: 5,
-                        shooter: 'invader'
-                    }
-                )
-            );
+        if (this.isBottom()) {
+            // 1 in 300 chance of shooting bullet
+            if (randomInt(1, 300) > 299) {
+                this.game.addEntity(
+                    new Bullet(
+                        {
+                            x: this.destination.x + (this.w / 2) - (bullet.w / 2), // prettier-ignore
+                            y: this.destination.y + this.h
+                        },
+                        {
+                            speed: bullet.s
+                        }
+                    )
+                );
+            }
         }
     };
 

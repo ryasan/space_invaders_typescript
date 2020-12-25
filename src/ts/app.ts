@@ -9,14 +9,36 @@ import StartMenu, { StartMenuBtn } from './start-menu';
 
 export type Difficulty = 'easy' | 'normal' | 'hard';
 
-export const ship = {
-    spriteW: 110,
-    spriteH: 110,
-    w: 30,
-    h: 30
+export type EntityCollection = 'ships' | 'bullets' | 'explosions';
+
+export const ship = (() => {
+    const w = 30;
+    const h = 30;
+
+    return { spriteW: 110, spriteH: 110, w: w, h: h, rX: w / 2, rY: h / 2 };
+})() as {
+    spriteW: number;
+    spriteH: number;
+    w: number;
+    h: number;
+    rX: number;
+    rY: number;
 };
 
-export let state: State, playerDeath: Subject, invaderDeath: Subject;
+export const bullet = (() => {
+    const w = 3;
+    const h = 6;
+
+    return { w: w, h: h, rY: h / 2, rX: w / 2, s: 5 };
+})() as {
+    w: number;
+    h: number;
+    s: number;
+    rY: number;
+    rX: number;
+};
+
+export let state: State, death: Subject;
 
 export const getGame = () => {
     return document.querySelector('#game') as Game;
@@ -59,8 +81,7 @@ export const drawImg = (
 export const loadGame = (difficulty = state.difficulty) => {
     state.setDifficulty(difficulty);
     state.setIsPaused(true);
-    playerDeath = new Subject();
-    invaderDeath = new Subject();
+    death = new Subject();
 
     document.body.innerHTML = `<game-map />`;
 };
@@ -73,6 +94,26 @@ export const loadStartMenu = () => {
 export const showGameOver = () => {
     document.body.innerHTML += '<game-over />';
 };
+
+export const isColliding = (a: EntityType, b: EntityType) => {
+    return !!(
+        a !== b &&
+        a.destination.x + a.w > b.destination.x &&
+        a.destination.x < b.destination.x + b.w &&
+        a.destination.y + a.h > b.destination.y &&
+        a.destination.y < b.destination.y + b.h
+    );
+};
+
+// export const isColliding = (a: EntityType, b: EntityType) => {
+//     return !(
+//         a === b ||
+//         a.destination.x - a.w / 2 >= b.destination.x + b.w / 2 ||
+//         a.destination.y - a.h / 2 >= b.destination.y + b.h / 2 ||
+//         a.destination.x + a.w / 2 <= b.destination.x - b.w / 2 ||
+//         a.destination.y + a.h / 2 <= b.destination.y - b.h / 2
+//     );
+// };
 
 class GameOver extends HTMLElement {
     constructor () {
@@ -92,46 +133,42 @@ class GameOver extends HTMLElement {
     }
 }
 
-type EntityType = Player | Invader | Bullet | Explosion;
+export type EntityType = Player | Invader | Bullet | Explosion;
 
 export class Game extends HTMLElement {
     ctx: CanvasRenderingContext2D;
-    canvas: any;
-    size: { x: number; y: number };
+    canvas: HTMLCanvasElement;
+    header: Header;
     then = Date.now();
     reqId = 0;
-    entity: any;
     frameCount = 0;
+    entity: {
+        bullets: Bullet[];
+        explosions: Explosion[];
+        ships: (Player & Invader)[];
+    };
 
     constructor () {
         super();
-        this.innerHTML = `
-            <top-header></top-header>
-            <canvas id="canvas" width="1200" height="720"></canvas>
-        `;
+        this.initialize();
         this.id = 'game';
+        this.header = document.querySelector('#header') as Header;
 
-        this.canvas = this.querySelector('#canvas');
-        this.ctx = this.canvas.getContext('2d');
-        this.size = {
-            x: this.ctx.canvas.width,
-            y: this.ctx.canvas.height
-        };
+        this.canvas = this.querySelector('#canvas') as HTMLCanvasElement;
+        this.ctx = this.canvas.getContext('2d') as CanvasRenderingContext2D;
 
         this.entity = {
             bullets: [],
             explosions: [],
-            invaders: Game.createInvaders(),
-            players: [
+            ships: [
+                ...Game.createInvaders(),
                 new Player({
-                    x: this.size.x / 2,
-                    y: this.size.y - ship.h
+                    x: this.canvas.width / 2,
+                    y: this.canvas.height - ship.h
                 })
-            ]
+            ] as (Player & Invader)[]
         };
-
-        invaderDeath.subscribe(this.removeEntity, this.explode);
-        playerDeath.subscribe(this.removeEntity, this.explode, state.setIsPaused); // prettier-ignore
+        death.subscribe(this.removeEntities, this.explode);
     }
 
     static createInvaders (): Invader[] {
@@ -146,22 +183,23 @@ export class Game extends HTMLElement {
         return invaders;
     }
 
-    // prettier-ignore
-    static isColliding (a: EntityType, b: Bullet) {
-        if (a && b) {
-            return !(
-                a.destination.x + ship.w / 2 <= b.destination.x - b.width / 2 ||
-                a.destination.y + ship.h / 2 <= b.destination.y - b.height / 2 ||
-                a.destination.x - ship.w / 2 >= b.destination.x + b.width / 2 ||
-                a.destination.y - ship.h / 2 >= b.destination.y + b.height / 2
-            );
-        }
+    static screen = (): { w: number; h: number } => ({
+        w: Math.min(window.innerWidth - 10, 1200),
+        h: Math.min(window.innerHeight - 10, 700)
+    });
 
-        return null;
-    }
+    initialize = () => {
+        const { w, h } = Game.screen();
+
+        this.innerHTML = `
+            <top-header></top-header>
+            <canvas id="canvas" width="${w}" height="${h}"></canvas>
+        `;
+    };
 
     connectedCallback () {
         this.tick();
+        window.addEventListener('resize', this.initialize);
     }
 
     disconnectedCallback () {
@@ -169,19 +207,20 @@ export class Game extends HTMLElement {
     }
 
     explode = (entity: EntityType) => {
-        console.log(entity.destination);
+        // console.log(entity.destination);
     };
 
     addEntity = (entity: EntityType) => {
-        const type = entity.type + 's';
-        this.entity[type].push(entity);
+        if (entity.collection === 'bullets') {
+            this.entity[entity.collection].push(entity as any);
+        }
     };
 
-    removeEntity = (entity: EntityType) => {
-        const type: string = entity.constructor.name.toLowerCase() + 's';
-        const idx = this.entity[type].indexOf(entity);
-
-        if (idx !== -1) this.entity[type].splice(idx, 1);
+    removeEntities = (...entities: EntityType[]) => {
+        entities.forEach(entity => {
+            const idx = this.entity[entity.collection].indexOf(entity as any);
+            if (idx !== -1) this.entity[entity.collection].splice(idx, 1);
+        });
     };
 
     tick = () => {
@@ -209,7 +248,7 @@ export class Game extends HTMLElement {
     };
 
     draw = () => {
-        this.ctx.clearRect(0, 0, this.size.x, this.size.y);
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.frameCount = (this.frameCount + 1) % 60;
 
         this.getEntities().forEach((entity: EntityType) => {
@@ -218,20 +257,20 @@ export class Game extends HTMLElement {
     };
 
     checkCollisions = () => {
-        const { invaders, bullets } = this.entity;
-        const [player] = this.entity.players;
+        const { ships, bullets } = this.entity;
 
-        // prettier-ignore
         bullets.forEach((bullet: Bullet) => {
-            invaders.forEach((invader: Invader) => {
-                if (Game.isColliding(invader, bullet) && bullet.shooter === 'player') {
-                    invaderDeath.notify(bullet);
+            ships.forEach((ship: Player | Invader) => {
+                if (isColliding(ship, bullet)) {
+                    if (ship instanceof Invader) {
+                        death.notify(ship, bullet);
+                    }
+                    if (ship instanceof Player) {
+                        death.notify(ship, bullet);
+                        this.header.pause();
+                    }
                 }
             });
-
-            if (Game.isColliding(player, bullet)) {
-                playerDeath.notify(player)
-            }
         });
     };
 }

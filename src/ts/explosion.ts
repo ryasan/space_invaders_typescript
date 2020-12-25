@@ -1,3 +1,4 @@
+import { EntityCollection } from './app';
 import Entity from './entity';
 
 // class Particle {
@@ -10,7 +11,9 @@ import Entity from './entity';
 // }
 
 export default class Explosion extends Entity {
-    type = 'bullet';
+    collection: EntityCollection = 'explosions';
+    w = 0;
+    h = 0;
 
     constructor (destination: { x: number; y: number }) {
         super(destination);

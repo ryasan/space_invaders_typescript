@@ -1,4 +1,4 @@
-type Fn = (args: any) => any;
+type Fn = (...args: any) => any;
 
 class Observer {
     observers = {
@@ -15,8 +15,8 @@ class Observer {
         this.observerList.filter(fn => fn !== fnToRemove);
     };
 
-    notify = (props?: any): void => {
-        this.observerList.forEach((fn: Fn) => fn(props));
+    notify = (...props: any[]): void => {
+        this.observerList.forEach((fn: Fn) => fn(...props));
     };
 }
 

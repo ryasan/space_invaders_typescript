@@ -1,6 +1,6 @@
 import 'regenerator-runtime/runtime';
 
-import { drawImg, sleep, invaderDeath } from './app';
+import { drawImg, sleep, death, EntityCollection, ship, bullet } from './app';
 import Entity from './entity';
 import Bullet from './bullet';
 
@@ -9,11 +9,13 @@ export default class Player extends Entity {
     onCoolDown = false;
     livesCount = 3;
     scoreCount = 0;
-    type = 'player';
+    w = ship.w;
+    h = ship.h;
+    collection: EntityCollection = 'ships';
 
     constructor (destination: { x: number; y: number }) {
         super(destination);
-        invaderDeath.subscribe(this.scorePoints);
+        death.subscribe(this.scorePoints);
     }
 
     scorePoints = async (): Promise<void> => {
@@ -27,24 +29,29 @@ export default class Player extends Entity {
         if (this.keyboard.pressing['ArrowLeft'] && this.destination.x > 0) {
             this.destination.x -= 5;
         }
-        if (this.keyboard.pressing['ArrowRight'] && this.destination.x < 1170) {
+        if (
+            this.keyboard.pressing['ArrowRight'] &&
+            this.destination.x < this.game.canvas.width - ship.w
+        ) {
             this.destination.x += 5;
         }
+        // && this.keyboard.pressing[' ']
         if (!this.onCoolDown && this.keyboard.pressing[' ']) {
             this.onCoolDown = true;
             this.game.addEntity(
                 new Bullet(
                     {
-                        x: this.destination.x,
-                        y: this.destination.y - 35
+                        x: this.destination.x + (ship.w / 2) - (bullet.w / 2), // prettier-ignore
+                        y: this.destination.y - bullet.h
                     },
                     {
-                        speed: -5,
-                        shooter: 'player'
+                        speed: -bullet.s
                     }
                 )
             );
-            sleep(200).then(() => (this.onCoolDown = false));
+            sleep(200).then(() => {
+                this.onCoolDown = false;
+            });
         }
     };
 

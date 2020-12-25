@@ -36,10 +36,6 @@ body {
     overflow: hidden;
 }
 
-h1 {
-    color: white;
-}
-
 ul {
     list-style-type: none;
 }
@@ -74,9 +70,9 @@ a {
 
 #canvas {
     border: 2px solid $cyan;
-    height: 720px;
+    // height: 700px;
     margin-top: 5px;
-    width: 1200px;
+    // width: 1200px;
 }
 
 #container {
