@@ -1,12 +1,14 @@
-import 'regenerator-runtime/runtime';
-
 import {
     drawImg,
     sleep,
-    invaderDeath,
     EntityCollection,
     ship,
-    bullet
+    bullet,
+    Destination,
+    showGameOver,
+    playerDeath,
+    EntityType,
+    htmlElement
 } from './app';
 import Entity from './entity';
 import Bullet from './bullet';
@@ -14,22 +16,49 @@ import Bullet from './bullet';
 export default class Player extends Entity {
     keyboard = new Keyboard();
     onCoolDown = false;
-    livesCount = 3;
     scoreCount = 0;
-    scoreText = 0;
     w = ship.w;
     h = ship.h;
     collection: EntityCollection = 'ships';
 
-    constructor (destination: { x: number; y: number }) {
+    constructor (destination: Destination) {
         super(destination);
-        invaderDeath.subscribe(this.scorePoints);
+
+        playerDeath.subscribe(
+            // this.explode,
+            this.destroyHTML,
+            // this.destroyEntities,
+            this.game.header.pause
+        );
     }
+
+    explode = () => {
+        // explosion animation
+    };
+
+    destroyEntities = (props: { entities: EntityType[] }) => {        
+        const [, bullet] = props.entities;
+        this.game.destroyEntity(bullet);
+    };
+
+    destroyHTML = (props) => {
+        // const livesList = htmlElement('#lives-list');
+        console.log('test: ', props);
+        // if (livesList.childElementCount > 0) {
+        //     livesList.firstElementChild.remove()
+        // } else {
+        //     showGameOver();
+        // }
+    };
 
     scorePoints = async (): Promise<void> => {
         for (let i = 1; i <= 10; i++) {
             this.scoreCount++;
-            this.game.header.score.textContent = this.scoreCount.toString();
+
+            (document
+                .querySelector('#score-count') as HTMLElement)
+                .textContent = this.scoreCount.toString(); // prettier-ignore
+
             await sleep(25);
         }
     };
@@ -53,7 +82,8 @@ export default class Player extends Entity {
                         y: this.destination.y - bullet.h
                     },
                     {
-                        speed: -bullet.s
+                        speed: -bullet.s,
+                        shooter: 'player'
                     }
                 )
             );

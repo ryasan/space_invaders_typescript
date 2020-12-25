@@ -1,7 +1,7 @@
-import { Game } from "./app";
+import { Game, htmlElement } from "./app";
 
 export default class Entity {
-    game = document.querySelector('#game') as Game;
+    game = htmlElement('#game') as Game;
     destination: { x: number; y: number };
 
     constructor (destination: { x: number; y: number }) {

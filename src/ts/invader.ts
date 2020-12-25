@@ -5,16 +5,17 @@ import {
     isColliding,
     ship,
     bullet,
-    EntityType
+    EntityType,
+    Destination
 } from './app';
 import Entity from './entity';
 import Bullet from './bullet';
 
 export default class Invader extends Entity {
-    speed = 1;
-    x = 0;
     w = ship.w;
     h = ship.h;
+    x = 0;
+    speed = 1;
     collection: EntityCollection = 'ships';
     cycleIdx = 0;
     cycle = [
@@ -22,9 +23,13 @@ export default class Invader extends Entity {
         { x: 0, y: 120 }
     ];
 
-    constructor (destination: { x: number; y: number }) {
+    constructor (destination: Destination) {
         super(destination);
     }
+
+    explode = () => {
+        // boom
+    };
 
     isBottom = (): boolean => {
         const { ships } = this.game.entity;
@@ -59,7 +64,8 @@ export default class Invader extends Entity {
                             y: this.destination.y + this.h
                         },
                         {
-                            speed: bullet.s
+                            speed: bullet.s,
+                            shooter: 'invader'
                         }
                     )
                 );

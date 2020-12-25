@@ -1,3 +1,6 @@
+import 'regenerator-runtime/runtime';
+import 'regenerator-runtime/runtime';
+
 import State from './state';
 import Subject from './observers';
 import Invader from './invader';
@@ -38,11 +41,7 @@ export const bullet = (() => {
     rX: number;
 };
 
-export let state: State, invaderDeath: Subject;
-
-export const getGame = () => {
-    return document.querySelector('#game') as Game;
-};
+export let state: State, playerDeath: Subject;
 
 export const sleep = (ms = 0): Promise<void> => {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -52,8 +51,8 @@ export const randomInt = (min = 1, max = 10) => {
     return Math.floor(Math.random() * (max - min + 1) + min);
 };
 
-export const preloadImg = (url: string) => {
-    return Object.assign(new Image(), { src: url });
+export const htmlElement = (selector: string) => {
+    return document.querySelector(selector) as HTMLElement;
 };
 
 const spriteSheet = Object.assign(new Image(), {
@@ -81,14 +80,17 @@ export const drawImg = (
 export const loadGame = (difficulty = state.difficulty) => {
     state.setDifficulty(difficulty);
     state.setIsPaused(true);
-    invaderDeath = new Subject();
-
+    playerDeath = new Subject();
     document.body.innerHTML = `<game-map />`;
 };
 
 export const loadStartMenu = () => {
     state = new State();
     document.body.innerHTML = '<start-menu />';
+};
+
+export const showCountDown = () => {
+    document.body.innerHTML += '<count-down />';
 };
 
 export const showGameOver = () => {
@@ -105,23 +107,13 @@ export const isColliding = (a: EntityType, b: EntityType) => {
     );
 };
 
-// export const isColliding = (a: EntityType, b: EntityType) => {
-//     return !(
-//         a === b ||
-//         a.destination.x - a.w / 2 >= b.destination.x + b.w / 2 ||
-//         a.destination.y - a.h / 2 >= b.destination.y + b.h / 2 ||
-//         a.destination.x + a.w / 2 <= b.destination.x - b.w / 2 ||
-//         a.destination.y + a.h / 2 <= b.destination.y - b.h / 2
-//     );
-// };
-
 class GameOver extends HTMLElement {
     constructor () {
         super();
-        this.id = 'game-over';
+        this.id = 'modal';
         this.innerHTML = `
-            <div class="game-over__inner">
-                <h1 class="game-over__title">GAME OVER!</h1>
+            <div class="modal__inner">
+                <h1 class="modal__title">GAME OVER!</h1>
                 <button id="play-again-btn" class="btn">
                     PLAY AGAIN
                 </button>
@@ -133,15 +125,50 @@ class GameOver extends HTMLElement {
     }
 }
 
+class CountDown extends HTMLElement {
+    constructor () {
+        super();
+        this.id = 'modal';
+        this.innerHTML = `
+            <div id="modal__inner">
+                <h1 id="modal__title">
+                    STARTING IN <span>3</span>
+                </h1>
+            </div>
+        `;
+    }
+
+    connectedCallback () {
+        this.startCountDown();
+    }
+
+    startCountDown = async (): Promise<void> => {
+        for (let i = 3; i >= 1; i--) {
+            (this.querySelector('span') as HTMLElement).textContent = i.toString(); // prettier-ignore
+            await sleep(1000);
+        }
+
+        this.remove();
+        state.setIsPaused(false);
+    };
+}
+
+export type Destination = { x: number; y: number };
+
 export type EntityType = Player | Invader | Bullet | Explosion;
+
+const screen = {
+    w: Math.min(window.innerWidth - 10, 1200),
+    h: Math.min(window.innerHeight - 10, 700)
+};
 
 export class Game extends HTMLElement {
     ctx: CanvasRenderingContext2D;
     canvas: HTMLCanvasElement;
     header: Header;
-    then = Date.now();
     reqId = 0;
     frameCount = 0;
+    player: Player;
     entity: {
         bullets: Bullet[];
         explosions: Explosion[];
@@ -150,25 +177,30 @@ export class Game extends HTMLElement {
 
     constructor () {
         super();
-        this.initialize();
-        this.id = 'game';
-        this.header = document.querySelector('#header') as Header;
+        this.innerHTML = `
+            <top-header></top-header>
+            <canvas
+                id="canvas"
+                width="${screen.w}"
+                height="${screen.h}"
+            ></canvas>
+        `;
 
-        this.canvas = this.querySelector('#canvas') as HTMLCanvasElement;
+        this.id = 'game';
+        this.header = htmlElement('#header') as Header;
+        this.canvas = htmlElement('#canvas') as HTMLCanvasElement;
         this.ctx = this.canvas.getContext('2d') as CanvasRenderingContext2D;
+
+        this.player = new Player({
+            x: this.canvas.width / 2,
+            y: this.canvas.height - ship.h
+        });
 
         this.entity = {
             bullets: [],
             explosions: [],
-            ships: [
-                ...Game.createInvaders(),
-                new Player({
-                    x: this.canvas.width / 2,
-                    y: this.canvas.height - ship.h
-                })
-            ] as (Player & Invader)[]
+            ships: [...Game.createInvaders(), this.player] as (Player & Invader)[] // prettier-ignore
         };
-        invaderDeath.subscribe(this.removeEntities, this.explode);
     }
 
     static createInvaders (): Invader[] {
@@ -183,32 +215,13 @@ export class Game extends HTMLElement {
         return invaders;
     }
 
-    static screen = (): { w: number; h: number } => ({
-        w: Math.min(window.innerWidth - 10, 1200),
-        h: Math.min(window.innerHeight - 10, 700)
-    });
-
-    initialize = () => {
-        const { w, h } = Game.screen();
-
-        this.innerHTML = `
-            <top-header></top-header>
-            <canvas id="canvas" width="${w}" height="${h}"></canvas>
-        `;
-    };
-
     connectedCallback () {
         this.tick();
-        window.addEventListener('resize', this.initialize);
     }
 
     disconnectedCallback () {
         window.cancelAnimationFrame(this.reqId);
     }
-
-    explode = (entity: EntityType) => {
-        console.log(entity.destination);
-    };
 
     addEntity = (entity: EntityType) => {
         if (entity.collection === 'bullets') {
@@ -216,11 +229,11 @@ export class Game extends HTMLElement {
         }
     };
 
-    removeEntities = (...entities: EntityType[]) => {
-        entities.forEach(entity => {
-            const idx = this.entity[entity.collection].indexOf(entity as any);
-            if (idx !== -1) this.entity[entity.collection].splice(idx, 1);
-        });
+    destroyEntity = (entity: EntityType) => {
+        const idx = this.entity[entity.collection].indexOf(entity as any);
+        if (idx !== -1) {
+            this.entity[entity.collection].splice(idx, 1);
+        }
     };
 
     tick = () => {
@@ -259,15 +272,17 @@ export class Game extends HTMLElement {
     checkCollisions = () => {
         const { ships, bullets } = this.entity;
 
-        bullets.forEach((bullet: Bullet) => {
-            ships.forEach((ship: Player | Invader) => {
-                if (isColliding(ship, bullet)) {
-                    if (ship instanceof Invader) {
-                        invaderDeath.notify(ship, bullet);
+        bullets.forEach((b: Bullet) => {
+            ships.forEach((s: Player | Invader) => {
+                if (isColliding(s, b)) {
+                    if (s instanceof Invader && b.props.shooter === 'player') {
+                        [s, b].forEach(this.destroyEntity);
+                        s.explode();
+                        this.player.scorePoints();
                     }
-                    if (ship instanceof Player) {
-                        invaderDeath.notify(ship, bullet);
-                        this.header.pause();
+                    if (s instanceof Player && b.props.shooter === 'invader') {
+                        playerDeath.notify({ entities: [s, b] });
+                        // console.log('trigger');
                     }
                 }
             });
@@ -295,6 +310,10 @@ const components = [
     {
         tagName: 'top-header',
         component: Header
+    },
+    {
+        tagName: 'count-down',
+        component: CountDown
     }
 ];
 

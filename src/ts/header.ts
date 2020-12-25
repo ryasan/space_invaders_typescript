@@ -1,4 +1,5 @@
-import { state, loadStartMenu, loadGame } from './app';
+import { state, loadStartMenu, loadGame, htmlElement, Game, showCountDown } from './app';
+import Player from './player';
 
 export default class Header extends HTMLElement {
     controlBtns: any;
@@ -6,7 +7,6 @@ export default class Header extends HTMLElement {
     playBtn: HTMLElement;
     pauseBtn: HTMLElement;
     startMenuBtn: HTMLElement;
-    score: HTMLElement;
 
     static createBtn = (text: string, onclick: () => void) => {
         return Object.assign(document.createElement('button'), {
@@ -24,12 +24,15 @@ export default class Header extends HTMLElement {
                 <span>Score: </span><span id="score-count">0</span>
             </div>
             <div id="lives">
-                <span>Lives</span>    
+                <span>Lives: </span>
+                <ul id="lives-list">
+                    <li class="life"></li>
+                    <li class="life"></li>
+                    <li class="life"></li>
+                </ul>
             </div>
         `;
         this.id = 'header';
-
-        this.score = document.querySelector('#score-count') as HTMLElement;
 
         this.resetBtn = Header.createBtn('RESET', () => loadGame());
         this.startMenuBtn = Header.createBtn('MENU', () => loadStartMenu());
@@ -57,10 +60,12 @@ export default class Header extends HTMLElement {
     };
 
     play = (): void => {
-        if (this.controlBtns.contains(this.playBtn)) {
-            state.setIsPaused(false);
-            this.controlBtns.appendChild(this.pauseBtn);
-            this.controlBtns.removeChild(this.playBtn);
+        if (htmlElement('#lives-list').childElementCount > 0) {
+            if (this.controlBtns.contains(this.playBtn)) {
+                showCountDown();
+                this.controlBtns.appendChild(this.pauseBtn);
+                this.controlBtns.removeChild(this.playBtn);
+            }
         }
     };
 }

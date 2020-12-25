@@ -1,24 +1,29 @@
-import { EntityCollection } from './app';
+import { EntityCollection, Destination } from './app';
 import Entity from './entity';
 
-export default class Bullet extends Entity {
+type BulletProps = {
     speed: number;
+    shooter: 'player' | 'invader';
+};
+
+export default class Bullet extends Entity {
     collection: EntityCollection = 'bullets';
+    props: BulletProps;
     w = 3;
     h = 6;
 
-    constructor (
-        destination: { x: number; y: number },
-        props: { speed: number }
-    ) {
+    constructor (destination: Destination, props: BulletProps) {
         super(destination);
-        this.speed = props.speed;
+        this.props = props;
     }
 
     update = () => {
-        this.destination.y += this.speed;
-        if (this.destination.y > this.game.canvas.height || this.destination.y < 0) {
-            this.game.removeEntities(this);
+        this.destination.y += this.props.speed;
+        if (
+            this.destination.y > this.game.canvas.height ||
+            this.destination.y < 0
+        ) {
+            this.game.destroyEntity(this);
         }
     };
 
