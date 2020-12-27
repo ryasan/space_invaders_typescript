@@ -9,13 +9,11 @@ import Header from './header';
 import Explosion from './explosion';
 import StartMenu, { StartMenuBtn } from './start-menu';
 
-export const invaderKilledSound = new Audio(
-    'https://space-invader-sounds.s3-us-west-1.amazonaws.com/invaderkilled.wav'
-);
-
-export const shootSound = new Audio(
+export const [explosionSound, invaderKilledSound, shootSound] = [
+    'https://space-invader-sounds.s3-us-west-1.amazonaws.com/explosion.wav',
+    'https://space-invader-sounds.s3-us-west-1.amazonaws.com/invaderkilled.wav',
     'https://space-invader-sounds.s3-us-west-1.amazonaws.com/shoot.wav'
-);
+].map(s => new Audio(s));
 
 export type Difficulty = 'easy' | 'normal' | 'hard';
 
@@ -272,7 +270,7 @@ export class Game extends HTMLElement {
     getSize = () => {
         return {
             w: Math.min(window.innerWidth - 10, 1200),
-            h: Math.min(window.innerHeight - 10, 720)
+            h: Math.min(window.innerHeight - 10, 700)
         };
     };
 

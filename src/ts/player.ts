@@ -8,7 +8,8 @@ import {
     EntityType,
     playerDeath,
     showGameOver,
-    shootSound
+    shootSound,
+    explosionSound
 } from './app';
 import Entity from './entity';
 import Bullet from './bullet';
@@ -32,15 +33,20 @@ export default class Player extends Entity {
 
     destroy = ({ entities }: { entities: EntityType[] }) => {
         const livesList = document.querySelector('#lives-list') as HTMLElement;
-        this.game.header.pause();
 
-        entities.forEach(this.game.destroyEntity);
-        playerDeath.unsubscribeAll();
         livesList.firstElementChild?.remove();
-
         if (livesList.childElementCount <= 0) {
             showGameOver();
         }
+
+        this.game.header.pause();
+
+        explosionSound.load();
+        explosionSound.play();
+
+        entities.forEach(this.game.destroyEntity);
+
+        playerDeath.unsubscribeAll();
     };
 
     scorePoints = async (): Promise<void> => {
