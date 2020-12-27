@@ -50,7 +50,7 @@ export default class Invader extends Entity {
         });
     };
 
-    bulletFrequency = (): boolean => {
+    hasLoadedBullet = (): boolean => {
         switch (state.difficulty) {
             case 'easy':
                 return randomInt(1, 500) > 499;
@@ -71,7 +71,7 @@ export default class Invader extends Entity {
 
         if (this.isBottom()) {
             // 1 in 300 chance of shooting bullet
-            if (this.bulletFrequency()) {
+            if (this.hasLoadedBullet()) {
                 this.game.addEntity(
                     new Bullet(
                         {

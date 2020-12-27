@@ -9,8 +9,13 @@ import Header from './header';
 import Explosion from './explosion';
 import StartMenu, { StartMenuBtn } from './start-menu';
 
-export const invaderKilledSound = new Audio(require('../audio/invaderkilled.wav')); // prettier-ignore
-export const shootSound = new Audio(require('../audio/shoot.wav'));
+export const invaderKilledSound = new Audio(
+    'https://space-invader-sounds.s3-us-west-1.amazonaws.com/invaderkilled.wav'
+);
+
+export const shootSound = new Audio(
+    'https://space-invader-sounds.s3-us-west-1.amazonaws.com/shoot.wav'
+);
 
 export type Difficulty = 'easy' | 'normal' | 'hard';
 
