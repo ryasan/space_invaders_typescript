@@ -8,7 +8,9 @@ import {
     EntityType,
     Destination,
     state,
-    invaderKilledSound
+    playSound,
+    invaderKilled,
+    invaderDeath
 } from './app';
 import Entity from './entity';
 import Bullet from './bullet';
@@ -27,11 +29,16 @@ export default class Invader extends Entity {
 
     constructor (destination: Destination) {
         super(destination);
+
+        invaderDeath.subscribe(this.explode, this.destroy);
     }
 
     explode = () => {
-        invaderKilledSound.load();
-        invaderKilledSound.play();
+        playSound(invaderKilled);
+    };
+
+    destroy = ({ entities }: { entities: EntityType[] }) => {
+        entities.forEach(this.game.destroyEntity);
     };
 
     isBottom = (): boolean => {

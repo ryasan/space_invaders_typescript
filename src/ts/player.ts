@@ -8,11 +8,14 @@ import {
     EntityType,
     playerDeath,
     showGameOver,
-    shootSound,
-    explosionSound
+    shoot,
+    explosion,
+    htmlElement,
+    playSound
 } from './app';
 import Entity from './entity';
 import Bullet from './bullet';
+import Explosion from './explosion';
 
 export default class Player extends Entity {
     keyboard = new Keyboard();
@@ -24,39 +27,39 @@ export default class Player extends Entity {
 
     constructor (destination: Destination) {
         super(destination);
-        playerDeath.subscribe(this.destroy);
+
+        playerDeath.subscribe(
+            this.game.header.pause,
+            this.destroy,
+            this.removeLife,
+            this.explode,
+            this.scorePoints,
+            playerDeath.unsubscribeAll
+        );
     }
 
     explode = () => {
-        console.log('explode animation');
+        playSound(explosion);
+        console.log(new Explosion(this.destination));
     };
 
-    destroy = ({ entities }: { entities: EntityType[] }) => {
-        const livesList = document.querySelector('#lives-list') as HTMLElement;
+    removeLife = () => {
+        const livesList = htmlElement('#lives-list');
 
         livesList.firstElementChild?.remove();
         if (livesList.childElementCount <= 0) {
             showGameOver();
         }
+    };
 
-        this.game.header.pause();
-
-        explosionSound.load();
-        explosionSound.play();
-
+    destroy = ({ entities }: { entities: EntityType[] }) => {
         entities.forEach(this.game.destroyEntity);
-
-        playerDeath.unsubscribeAll();
     };
 
     scorePoints = async (): Promise<void> => {
         for (let i = 1; i <= 10; i++) {
             this.scoreCount++;
-
-            (document
-                .querySelector('#score-count') as HTMLElement)
-                .textContent = this.scoreCount.toString(); // prettier-ignore
-
+            htmlElement('#score-count').textContent = this.scoreCount.toString(); // prettier-ignore
             await sleep(25);
         }
     };
@@ -73,8 +76,7 @@ export default class Player extends Entity {
         }
         if (!this.onCoolDown && this.keyboard.pressing[' ']) {
             this.onCoolDown = true;
-            shootSound.load();
-            shootSound.play();
+            playSound(shoot);
             this.game.addEntity(
                 new Bullet(
                     {

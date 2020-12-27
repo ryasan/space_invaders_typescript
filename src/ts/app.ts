@@ -1,5 +1,18 @@
 import 'regenerator-runtime/runtime';
 
+window.requestAnimationFrame = (() => {
+    return (
+        window.requestAnimationFrame ||
+        window.webkitRequestAnimationFrame ||
+        window.mozRequestAnimationFrame ||
+        window.oRequestAnimationFrame ||
+        window.msRequestAnimationFrame ||
+        function (callback) {
+            window.setTimeout(callback, 1000 / 60);
+        }
+    );
+})();
+
 import State from './state';
 import Subject from './observers';
 import Invader from './invader';
@@ -9,11 +22,21 @@ import Header from './header';
 import Explosion from './explosion';
 import StartMenu, { StartMenuBtn } from './start-menu';
 
-export const [explosionSound, invaderKilledSound, shootSound] = [
+export const [explosion, invaderKilled, shoot] = [
     'https://space-invader-sounds.s3-us-west-1.amazonaws.com/explosion.wav',
     'https://space-invader-sounds.s3-us-west-1.amazonaws.com/invaderkilled.wav',
     'https://space-invader-sounds.s3-us-west-1.amazonaws.com/shoot.wav'
 ].map(s => new Audio(s));
+
+export const playSound = async (sound: HTMLAudioElement) => {
+    const loadPromise = sound.load();
+    const playPromise = sound.play();
+
+    if (loadPromise !== undefined && playPromise !== undefined) {
+        await sound.load();
+        await sound.play();
+    }
+};
 
 export type Difficulty = 'easy' | 'normal' | 'hard';
 
@@ -59,7 +82,7 @@ export const bullet = (() => {
     rX: number;
 };
 
-export let state: State, playerDeath: Subject;
+export let state: State, playerDeath: Subject, invaderDeath: Subject;
 
 export const sleep = (ms = 0): Promise<void> => {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -99,6 +122,7 @@ export const loadGame = (difficulty = state.difficulty) => {
     state.setDifficulty(difficulty);
     state.setIsPaused(true);
     playerDeath = new Subject();
+    invaderDeath = new Subject();
 
     document.body.innerHTML = `<game-map />`;
 };
@@ -109,11 +133,11 @@ export const loadStartMenu = () => {
 };
 
 export const showCountDown = () => {
-    (htmlElement('#game') as Game).appendChild(new CountDown());
+    htmlElement('#game').appendChild(new CountDown());
 };
 
 export const showGameOver = () => {
-    (htmlElement('#game') as Game).appendChild(new GameOver());
+    htmlElement('#game').appendChild(new GameOver());
 };
 
 export const isColliding = (a: EntityType, b: EntityType) => {
@@ -179,10 +203,7 @@ class CountDown extends HTMLElement {
         const game = htmlElement('#game') as Game;
 
         for (let i = 3; i >= 1; i--) {
-            // prettier-ignore
-            (game
-                .querySelector('#modal h1') as HTMLElement)
-                .textContent = i.toString();
+            htmlElement('#modal h1').textContent = i.toString();
             await sleep(1000);
         }
 
@@ -331,8 +352,7 @@ export class Game extends HTMLElement {
             ships.forEach((s: Player | Invader) => {
                 if (isColliding(s, b)) {
                     if (s instanceof Invader && b.props.shooter === 'player') {
-                        [s, b].forEach(this.destroyEntity);
-                        s.explode();
+                        invaderDeath.notify({ entities: [s, b] });
                     }
                     if (s instanceof Player && b.props.shooter === 'invader') {
                         playerDeath.notify({ entities: [s, b] });
