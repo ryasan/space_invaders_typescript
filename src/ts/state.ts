@@ -1,4 +1,4 @@
-export type Difficulty = 'easy' | 'normal' | 'hard';
+import { Difficulty } from './app';
 
 export default class State {
     isPaused = true;

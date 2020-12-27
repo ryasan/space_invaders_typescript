@@ -63,7 +63,7 @@ export default class Invader extends Entity {
     };
 
     update = () => {
-        if (this.x < 0 || this.x > this.game.canvas.width / 2) {
+        if (this.x < 0 || this.x > this.game.canvas.width / 2 - ship.w) {
             this.speed = -this.speed;
         }
         this.destination.x += this.speed;

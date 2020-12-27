@@ -206,11 +206,6 @@ export type Destination = { x: number; y: number };
 
 export type EntityType = Player | Invader | Bullet | Explosion;
 
-const screen = {
-    w: Math.min(window.innerWidth - 10, 1200),
-    h: Math.min(window.innerHeight - 10, 700)
-};
-
 export class Game extends HTMLElement {
     ctx: CanvasRenderingContext2D;
     canvas: HTMLCanvasElement;
@@ -229,8 +224,8 @@ export class Game extends HTMLElement {
             <top-header></top-header>
             <canvas
                 id="canvas"
-                width="${screen.w}"
-                height="${screen.h}">
+                width="${this.getSize().w}"
+                height="${this.getSize().h}">
             </canvas>
         `;
 
@@ -266,11 +261,26 @@ export class Game extends HTMLElement {
 
     connectedCallback () {
         this.tick();
+        window.addEventListener('resize', this.onResize);
     }
 
     disconnectedCallback () {
         window.cancelAnimationFrame(this.reqId);
+        window.removeEventListener('resize', this.onResize);
     }
+
+    getSize = () => {
+        return {
+            w: Math.min(window.innerWidth - 10, 1200),
+            h: Math.min(window.innerHeight - 10, 720)
+        };
+    };
+
+    onResize = () => {
+        const { w, h } = this.getSize();
+        this.canvas.width = w;
+        this.canvas.height = h;
+    };
 
     addEntity = (e: EntityType) => {
         this.entity[e.collection].push(e as any);
