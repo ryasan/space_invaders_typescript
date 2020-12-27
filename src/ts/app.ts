@@ -25,7 +25,14 @@ export const ship = (() => {
     const w = 30;
     const h = 30;
 
-    return { spriteW: 110, spriteH: 110, w: w, h: h, rX: w / 2, rY: h / 2 };
+    return {
+        spriteW: 110,
+        spriteH: 110,
+        w: w,
+        h: h,
+        rX: w / 2,
+        rY: h / 2
+    };
 })() as {
     spriteW: number;
     spriteH: number;
@@ -39,7 +46,13 @@ export const bullet = (() => {
     const w = 3;
     const h = 6;
 
-    return { w: w, h: h, rY: h / 2, rX: w / 2, s: 5 };
+    return {
+        w: w,
+        h: h,
+        rY: h / 2,
+        rX: w / 2,
+        s: 5
+    };
 })() as {
     w: number;
     h: number;
