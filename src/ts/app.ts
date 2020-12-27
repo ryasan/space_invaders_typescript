@@ -8,7 +8,9 @@ import Bullet from './bullet';
 import Header from './header';
 import Explosion from './explosion';
 import StartMenu, { StartMenuBtn } from './start-menu';
-import ShootSound from '../audio/shoot';
+
+export const invaderKilledSound = new Audio(require('../audio/invaderkilled.wav')); // prettier-ignore
+export const shootSound = new Audio(require('../audio/shoot.wav'));
 
 export type Difficulty = 'easy' | 'normal' | 'hard';
 
@@ -165,7 +167,6 @@ class CountDown extends HTMLElement {
             (game
                 .querySelector('#modal h1') as HTMLElement)
                 .textContent = i.toString();
-
             await sleep(1000);
         }
 

@@ -7,7 +7,8 @@ import {
     bullet,
     EntityType,
     Destination,
-    state
+    state,
+    invaderKilledSound
 } from './app';
 import Entity from './entity';
 import Bullet from './bullet';
@@ -29,7 +30,8 @@ export default class Invader extends Entity {
     }
 
     explode = () => {
-        // boom
+        invaderKilledSound.load();
+        invaderKilledSound.play();
     };
 
     isBottom = (): boolean => {

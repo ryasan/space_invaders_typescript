@@ -8,7 +8,7 @@ import {
     EntityType,
     playerDeath,
     showGameOver,
-    htmlElement
+    shootSound
 } from './app';
 import Entity from './entity';
 import Bullet from './bullet';
@@ -20,7 +20,6 @@ export default class Player extends Entity {
     w = ship.w;
     h = ship.h;
     collection: EntityCollection = 'ships';
-    shootSound = new Audio(require('../audio/shoot.wav'));
 
     constructor (destination: Destination) {
         super(destination);
@@ -68,7 +67,8 @@ export default class Player extends Entity {
         }
         if (!this.onCoolDown && this.keyboard.pressing[' ']) {
             this.onCoolDown = true;
-            this.shootSound.play();
+            shootSound.load();
+            shootSound.play();
             this.game.addEntity(
                 new Bullet(
                     {
