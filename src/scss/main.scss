@@ -204,3 +204,30 @@ a {
         width: 100px;
     }
 }
+
+#guide-list {
+    list-style-type: none;
+    margin-bottom: 40px;
+
+    li {
+        display: flex;
+        line-height: 30px;
+        text-transform: uppercase;
+
+        span {
+            display: inline-block;
+            flex: 1;
+            min-width: 162px;
+            text-align: right;
+
+            &:nth-child(1) {
+                color: $cyan;
+                margin-right: 18px;
+            }
+
+            &:nth-child(2) {
+                text-align: left;
+            }
+        }
+    }
+}

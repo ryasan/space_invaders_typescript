@@ -56,13 +56,8 @@ export default class Header extends HTMLElement {
         this.renderTime();
     }
 
-    connectedCallback () {
-        window.addEventListener('blur', this.pause);
-    }
-
     disconnectedCallback () {
         clearInterval(this.interval);
-        window.removeEventListener('blur', this.pause);
     }
 
     // prettier-ignore
