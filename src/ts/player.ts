@@ -46,18 +46,19 @@ export default class Player extends Entity {
 
         livesList.firstElementChild?.remove();
         if (livesList.childElementCount <= 0) {
-            showGameOver();
+            showGameOver(false);
         }
     };
 
-    destroy = ({ entities }: { entities: EntityType[] }) => {
+    destroy = async ({ entities }: { entities: EntityType[] }) => {
         entities.forEach(this.game.destroyEntity);
         this.game.getEntities().forEach((e: EntityType) => {
             if (e instanceof Bullet) {
                 this.game.destroyEntity(e);
             }
         });
-        sleep(1000).then(this.game.header.pause);
+        await sleep(1000);
+        this.game.header.pause()
     };
 
     update = () => {

@@ -11,7 +11,8 @@ import {
     playSound,
     invaderKilled,
     htmlElement,
-    sleep
+    sleep,
+    showGameOver
 } from './app';
 import Entity from './entity';
 import Bullet from './bullet';
@@ -34,7 +35,11 @@ export default class Invader extends Entity {
     constructor (destination: Destination) {
         super(destination);
 
-        this.invaderDeath.subscribe(this.destroy, this.explode);
+        this.invaderDeath.subscribe(
+            this.destroy,
+            this.explode,
+            this.scorePoints
+        );
     }
 
     explode = () => {
@@ -42,8 +47,12 @@ export default class Invader extends Entity {
         this.game.addEntity(new Explosion(this.destination));
     };
 
-    destroy = ({ entities }: { entities: EntityType[] }) => {
+    destroy = async ({ entities }: { entities: EntityType[] }) => {
         entities.forEach(this.game.destroyEntity);
+        if (this.game.entity.ships.every(s => !(s instanceof Invader))) {
+            await sleep(1000);
+            showGameOver(true);
+        }
     };
 
     isBottom = (): boolean => {
@@ -75,9 +84,11 @@ export default class Invader extends Entity {
     };
 
     scorePoints = async (): Promise<void> => {
+        const scoreCount = htmlElement('#score-count');
+
         for (let i = 1; i <= 10; i++) {
             this.game.scoreCount++;
-            htmlElement('#score-count').textContent = this.game.scoreCount.toString(); // prettier-ignore
+            scoreCount.textContent = this.game.scoreCount.toString();
             await sleep(25);
         }
     };

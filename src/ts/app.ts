@@ -145,8 +145,8 @@ export const showCountDown = () => {
     htmlElement('#game').appendChild(new CountDown());
 };
 
-export const showGameOver = () => {
-    htmlElement('#game').appendChild(new GameOver());
+export const showGameOver = (isWinner: boolean) => {
+    htmlElement('#game').appendChild(new GameOver(isWinner));
 };
 
 export const isColliding = (a: EntityType, b: EntityType) => {
@@ -162,13 +162,17 @@ export const isColliding = (a: EntityType, b: EntityType) => {
 class GameOver extends HTMLElement {
     playAgainBtn: HTMLElement;
     mainMenuBtn: HTMLElement;
+    game = htmlElement('#game') as Game;
+    text: string;
 
-    constructor () {
+    constructor (isWinner: boolean) {
         super();
+        this.text = isWinner ? 'YOU WIN' : 'YOU LOST';
+
         this.id = 'modal';
         this.innerHTML = `
             <div id="modal__inner">
-                <h1 id="modal__title">GAME OVER!</h1>
+                <h1 id="modal__title">${this.text}!</h1>
                 <button id="play-again-btn" class="btn">
                     PLAY AGAIN
                 </button>
@@ -183,6 +187,7 @@ class GameOver extends HTMLElement {
     }
 
     connectedCallback () {
+        if (!state.isPaused) this.game.header.pause();
         this.playAgainBtn.addEventListener('click', () => loadGame());
         this.mainMenuBtn.addEventListener('click', () => loadStartMenu());
     }
@@ -210,9 +215,10 @@ class CountDown extends HTMLElement {
 
     startCountDown = async (): Promise<void> => {
         const game = htmlElement('#game') as Game;
+        const count = htmlElement('#modal h1');
 
         for (let i = 3; i >= 1; i--) {
-            htmlElement('#modal h1').textContent = i.toString();
+            count.textContent = i.toString();
             await sleep(1000);
         }
 

@@ -3,15 +3,19 @@ import {
     loadStartMenu,
     loadGame,
     htmlElement,
-    showCountDown
+    showCountDown,
+    showGameOver
 } from './app';
 
 export default class Header extends HTMLElement {
     controlBtns: any;
+    timeLeft: any;
     resetBtn: HTMLElement;
     playBtn: HTMLElement;
     pauseBtn: HTMLElement;
     startMenuBtn: HTMLElement;
+    interval: any;
+    distance = 90000;
 
     static createBtn = (text: string, onclick: () => void) => {
         return Object.assign(document.createElement('button'), {
@@ -25,8 +29,9 @@ export default class Header extends HTMLElement {
         super();
         this.innerHTML = `
             <div id="control-btns"></div>
-            <div id="score">
-                <span>Score: </span><span id="score-count">0</span>
+            <div id="stats">
+                <div>Score:<span id="score-count">0</span></div>
+                <div>Time Left:<span id="time-left"></span></div>
             </div>
             <div id="lives">
                 <div>Lives: </div>
@@ -46,6 +51,9 @@ export default class Header extends HTMLElement {
 
         this.controlBtns = this.querySelector('#control-btns');
         this.controlBtns.append(this.startMenuBtn, this.resetBtn, this.playBtn);
+
+        this.timeLeft = this.querySelector('#time-left');
+        this.renderTime();
     }
 
     connectedCallback () {
@@ -53,8 +61,20 @@ export default class Header extends HTMLElement {
     }
 
     disconnectedCallback () {
+        clearInterval(this.interval);
         window.removeEventListener('blur', this.pause);
     }
+
+    // prettier-ignore
+    renderTime = () => {
+        if (!state.isPaused) this.distance -= 1000;
+
+        const minutes = Math.floor((this.distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((this.distance % (1000 * 60)) / 1000);
+        this.timeLeft.textContent = `${minutes}:${seconds < 10 ? 0 : ''}${seconds}`;
+
+        if (!minutes && !seconds) showGameOver(false);
+    };
 
     pause = (): void => {
         if (this.controlBtns.contains(this.pauseBtn)) {
@@ -66,8 +86,13 @@ export default class Header extends HTMLElement {
 
     play = (): void => {
         if (htmlElement('#lives-list').childElementCount) {
+            showCountDown();
+
+            if (!this.interval) {
+                this.interval = setInterval(this.renderTime, 1000);
+            }
+
             if (this.controlBtns.contains(this.playBtn)) {
-                showCountDown();
                 this.controlBtns.appendChild(this.pauseBtn);
                 this.controlBtns.removeChild(this.playBtn);
             }
