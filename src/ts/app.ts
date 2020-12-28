@@ -14,7 +14,6 @@ window.requestAnimationFrame = (() => {
 })();
 
 import State from './state';
-import Subject from './observers';
 import Invader from './invader';
 import Player from './player';
 import Bullet from './bullet';
@@ -22,25 +21,26 @@ import Header from './header';
 import Explosion from './explosion';
 import StartMenu, { StartMenuBtn } from './start-menu';
 
-export const [explosion, invaderKilled, shoot] = [
+export const [playerKilled, invaderKilled, shoot] = [
     'https://space-invader-sounds.s3-us-west-1.amazonaws.com/explosion.wav',
     'https://space-invader-sounds.s3-us-west-1.amazonaws.com/invaderkilled.wav',
     'https://space-invader-sounds.s3-us-west-1.amazonaws.com/shoot.wav'
 ].map(s => new Audio(s));
 
-export const playSound = async (sound: HTMLAudioElement) => {
-    const loadPromise = sound.load();
-    const playPromise = sound.play();
-
-    if (loadPromise !== undefined && playPromise !== undefined) {
-        await sound.load();
-        await sound.play();
-    }
+export const playSound = async (audio: HTMLMediaElement) => {
+    audio.preload = 'none';
+    await audio.play();
 };
+
+export let state: State;
 
 export type Difficulty = 'easy' | 'normal' | 'hard';
 
 export type EntityCollection = 'ships' | 'bullets' | 'explosions';
+
+export type Destination = { x: number; y: number };
+
+export type EntityType = Player | Invader | Bullet | Explosion;
 
 export const ship = (() => {
     const w = 30;
@@ -82,14 +82,25 @@ export const bullet = (() => {
     rX: number;
 };
 
-export let state: State, playerDeath: Subject, invaderDeath: Subject;
-
 export const sleep = (ms = 0): Promise<void> => {
     return new Promise(resolve => setTimeout(resolve, ms));
 };
 
-export const randomInt = (min = 1, max = 10) => {
-    return Math.floor(Math.random() * (max - min + 1) + min);
+export const randomInt = (
+    min: number,
+    max: number,
+    positive?: boolean | undefined
+) => {
+    let num;
+
+    if (!positive) {
+        num = Math.floor(Math.random() * max) - min;
+        num *= Math.floor(Math.random() * 2) === 1 ? 1 : -1;
+    } else {
+        return Math.floor(Math.random() * (max - min + 1) + min);
+    }
+
+    return num;
 };
 
 export const htmlElement = (selector: string) => {
@@ -121,8 +132,6 @@ export const drawImg = (
 export const loadGame = (difficulty = state.difficulty) => {
     state.setDifficulty(difficulty);
     state.setIsPaused(true);
-    playerDeath = new Subject();
-    invaderDeath = new Subject();
 
     document.body.innerHTML = `<game-map />`;
 };
@@ -221,10 +230,6 @@ class CountDown extends HTMLElement {
     };
 }
 
-export type Destination = { x: number; y: number };
-
-export type EntityType = Player | Invader | Bullet | Explosion;
-
 export class Game extends HTMLElement {
     ctx: CanvasRenderingContext2D;
     canvas: HTMLCanvasElement;
@@ -236,6 +241,7 @@ export class Game extends HTMLElement {
         explosions: Explosion[];
         ships: (Player & Invader)[];
     };
+    scoreCount = 0;
 
     constructor () {
         super();
@@ -260,7 +266,7 @@ export class Game extends HTMLElement {
                 ...Game.createInvaders(),
                 new Player({
                     x: this.canvas.width / 2,
-                    y: this.canvas.height - ship.h
+                    y: this.canvas.height - ship.h - 20
                 })
             ] as (Player & Invader)[]
         };
@@ -352,10 +358,10 @@ export class Game extends HTMLElement {
             ships.forEach((s: Player | Invader) => {
                 if (isColliding(s, b)) {
                     if (s instanceof Invader && b.props.shooter === 'player') {
-                        invaderDeath.notify({ entities: [s, b] });
+                        s.invaderDeath.notify({ entities: [s, b] });
                     }
                     if (s instanceof Player && b.props.shooter === 'invader') {
-                        playerDeath.notify({ entities: [s, b] });
+                        s.playerDeath.notify({ entities: [s, b] });
                     }
                 }
             });

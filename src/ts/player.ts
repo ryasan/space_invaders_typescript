@@ -6,41 +6,39 @@ import {
     bullet,
     Destination,
     EntityType,
-    playerDeath,
     showGameOver,
     shoot,
-    explosion,
+    playerKilled,
     htmlElement,
     playSound
 } from './app';
 import Entity from './entity';
 import Bullet from './bullet';
+import Subject from './observers';
 import Explosion from './explosion';
 
 export default class Player extends Entity {
     keyboard = new Keyboard();
     onCoolDown = false;
-    scoreCount = 0;
     w = ship.w;
     h = ship.h;
     collection: EntityCollection = 'ships';
+    playerDeath = new Subject();
 
     constructor (destination: Destination) {
         super(destination);
 
-        playerDeath.subscribe(
-            this.game.header.pause,
+        this.playerDeath.subscribe(
             this.destroy,
             this.removeLife,
             this.explode,
-            this.scorePoints,
-            playerDeath.unsubscribeAll
+            this.playerDeath.unsubscribeAll
         );
     }
 
     explode = () => {
-        playSound(explosion);
-        console.log(new Explosion(this.destination));
+        playSound(playerKilled);
+        this.game.addEntity(new Explosion(this.destination));
     };
 
     removeLife = () => {
@@ -54,14 +52,12 @@ export default class Player extends Entity {
 
     destroy = ({ entities }: { entities: EntityType[] }) => {
         entities.forEach(this.game.destroyEntity);
-    };
-
-    scorePoints = async (): Promise<void> => {
-        for (let i = 1; i <= 10; i++) {
-            this.scoreCount++;
-            htmlElement('#score-count').textContent = this.scoreCount.toString(); // prettier-ignore
-            await sleep(25);
-        }
+        this.game.getEntities().forEach((e: EntityType) => {
+            if (e instanceof Bullet) {
+                this.game.destroyEntity(e);
+            }
+        });
+        sleep(1000).then(this.game.header.pause);
     };
 
     update = () => {
@@ -89,7 +85,7 @@ export default class Player extends Entity {
                     }
                 )
             );
-            sleep(200).then(() => (this.onCoolDown = false));
+            sleep(500).then(() => (this.onCoolDown = false));
         }
     };
 

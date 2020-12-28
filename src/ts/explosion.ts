@@ -1,36 +1,8 @@
-import { Destination, EntityCollection } from './app';
+import { EntityCollection, ship } from './app';
 import Entity from './entity';
 
-const randInt = (min: number, max: number, positive?: boolean | undefined) => {
-    let num;
-    if (positive === false) {
-        num = Math.floor(Math.random() * max) - min;
-        num *= Math.floor(Math.random() * 2) === 1 ? 1 : -1;
-    } else {
-        num = Math.floor(Math.random() * max) + min;
-    }
-
-    return num;
-};
-
-class Particle {
-    destination: Destination;
-    velocity: { x: number; y: number };
-    particlesMinSpeed = 3;
-    particlesMaxSpeed = 6;
-    particleMinSize = 1;
-    particleMaxSize = 3;
-    size: number;
-
-    constructor (x: number, y: number) {
-        this.destination = { x, y };
-        this.velocity = {
-            x: randInt(this.particleMinSize, this.particleMaxSize),
-            y: randInt(this.particlesMinSpeed, this.particlesMaxSpeed)
-        };
-        this.size = randInt(this.particleMinSize, this.particleMaxSize, true);
-    }
-}
+import { Destination } from './app';
+import Particle from './particle';
 
 export default class Explosion extends Entity {
     collection: EntityCollection = 'explosions';
@@ -39,19 +11,46 @@ export default class Explosion extends Entity {
     w = 0;
     h = 0;
 
-    constructor (destination: { x: number; y: number }) {
+    constructor (destination: Destination) {
         super(destination);
 
-        for (let i = 0; i < particlesPerExplosion; i++) {
-            this.particles.push(new Particle(destination.x, destination.y));
+        for (let i = 0; i < this.particlesPerExplosion; i++) {
+            this.particles.push(
+                new Particle({
+                    x: this.destination.x + ship.w / 2,
+                    y: this.destination.y + ship.h / 2
+                })
+            );
         }
     }
 
+    destroy = () => {
+        this.game.destroyEntity(this);
+    };
+
     update = () => {
-        // update
+        if (this.particles.length === 0) {
+            this.destroy();
+            return;
+        }
+
+        for (let i = 0; i < this.particles.length; i++) {
+            const particle = this.particles[i];
+            particle.update();
+        }
     };
 
     draw = () => {
-        // draw
+        // const copy = this.particles.slice();
+        for (let i = 0; i < this.particles.length; i++) {
+            const particle = this.particles[i];
+
+            if (particle.size <= 0) {
+                this.particles.splice(i, 1);
+                continue;
+            }
+
+            particle.draw();
+        }
     };
 }

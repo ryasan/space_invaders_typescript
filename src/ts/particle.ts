@@ -1,29 +1,38 @@
-const randInt = (min: number, max: number, positive: boolean | undefined) => {
-    let num;
-    if (positive === false) {
-        num = Math.floor(Math.random() * max) - min;
-        num *= Math.floor(Math.random() * 2) === 1 ? 1 : -1;
-    } else {
-        num = Math.floor(Math.random() * max) + min;
-    }
+import Entity from './entity';
 
-    return num;
-};
+import { Destination, randomInt } from './app';
 
-class Particle {
-    destination: Destination;
+export default class Particle extends Entity {
     velocity: { x: number; y: number };
     particlesPerExplosion = 20;
     particlesMinSpeed = 3;
     particlesMaxSpeed = 6;
-    particleMinSize = 1;
-    particleMaxSize = 3;
+    particleMinSize = 2;
+    particleMaxSize = 5;
+    size: number;
 
-    constructor (x: number, y: number) {
-        this.destination = { x, y };
+    constructor (destination: Destination) {
+        super(destination);
         this.velocity = {
-            x: randInt(this.particleMinSize),
-
+            x: randomInt(this.particlesMinSpeed, this.particlesMaxSpeed),
+            y: randomInt(this.particlesMinSpeed, this.particlesMaxSpeed)
         };
+        this.size = randomInt(this.particleMinSize, this.particleMaxSize, true);
     }
+
+    update = () => {
+        this.destination.x += this.velocity.x;
+        this.destination.y += this.velocity.y;
+        this.size -= 0.1;
+    };
+
+    draw = () => {
+        this.game.ctx.fillStyle = '#26c6da';
+        this.game.ctx.fillRect(
+            this.destination.x,
+            this.destination.y,
+            this.size,
+            this.size
+        );
+    };
 }

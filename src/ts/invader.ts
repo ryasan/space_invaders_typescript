@@ -10,10 +10,13 @@ import {
     state,
     playSound,
     invaderKilled,
-    invaderDeath
+    htmlElement,
+    sleep
 } from './app';
 import Entity from './entity';
 import Bullet from './bullet';
+import Subject from './observers';
+import Explosion from './explosion';
 
 export default class Invader extends Entity {
     w = ship.w;
@@ -26,15 +29,17 @@ export default class Invader extends Entity {
         { x: 0, y: 0 },
         { x: 0, y: 120 }
     ];
+    invaderDeath = new Subject();
 
     constructor (destination: Destination) {
         super(destination);
 
-        invaderDeath.subscribe(this.explode, this.destroy);
+        this.invaderDeath.subscribe(this.destroy, this.explode);
     }
 
     explode = () => {
         playSound(invaderKilled);
+        this.game.addEntity(new Explosion(this.destination));
     };
 
     destroy = ({ entities }: { entities: EntityType[] }) => {
@@ -60,12 +65,20 @@ export default class Invader extends Entity {
     hasLoadedBullet = (): boolean => {
         switch (state.difficulty) {
             case 'easy':
-                return randomInt(1, 500) > 499;
+                return randomInt(1, 500, true) > 499;
             case 'hard':
-                return randomInt(1, 100) > 99;
+                return randomInt(1, 100, true) > 99;
             default:
             case 'normal':
-                return randomInt(1, 300) > 299;
+                return randomInt(1, 300, true) > 299;
+        }
+    };
+
+    scorePoints = async (): Promise<void> => {
+        for (let i = 1; i <= 10; i++) {
+            this.game.scoreCount++;
+            htmlElement('#score-count').textContent = this.game.scoreCount.toString(); // prettier-ignore
+            await sleep(25);
         }
     };
 
