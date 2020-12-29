@@ -7,8 +7,8 @@ export default class Particle extends Entity {
     particlesPerExplosion = 20;
     particlesMinSpeed = 3;
     particlesMaxSpeed = 6;
-    particleMinSize = 2;
-    particleMaxSize = 5;
+    particleMinSize = 3;
+    particleMaxSize = 6;
     size: number;
 
     constructor (destination: Destination) {

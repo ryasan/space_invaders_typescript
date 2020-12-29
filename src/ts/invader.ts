@@ -54,6 +54,18 @@ export default class Invader extends Entity {
         });
     }
 
+    get hasLoadedBullet () {
+        switch (state.difficulty) {
+            case 'easy':
+                return randomInt(1, 500, true) > 499;
+            case 'hard':
+                return randomInt(1, 100, true) > 99;
+            default:
+            case 'normal':
+                return randomInt(1, 300, true) > 299;
+        }
+    }
+
     destroy = async ({ entities }: { entities: EntityType[] }) => {
         const { addEntity, destroyEntity, entity } = this.game;
 
@@ -64,18 +76,6 @@ export default class Invader extends Entity {
         if (entity.ships.every(s => !isInvader(s))) {
             await sleep(1000);
             showGameOver(true);
-        }
-    };
-
-    hasLoadedBullet = (): boolean => {
-        switch (state.difficulty) {
-            case 'easy':
-                return randomInt(1, 500, true) > 499;
-            case 'hard':
-                return randomInt(1, 100, true) > 99;
-            default:
-            case 'normal':
-                return randomInt(1, 300, true) > 299;
         }
     };
 
@@ -98,7 +98,7 @@ export default class Invader extends Entity {
 
         if (this.isBottom) {
             // 1 in 300 chance of shooting bullet
-            if (this.hasLoadedBullet()) {
+            if (this.hasLoadedBullet) {
                 this.game.addEntity(
                     new Bullet(
                         {

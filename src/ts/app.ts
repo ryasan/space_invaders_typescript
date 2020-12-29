@@ -24,13 +24,10 @@ import StartMenu, { StartMenuBtn } from './start-menu';
 export let state: State;
 
 export type Difficulty = 'easy' | 'normal' | 'hard';
-
 export type EntityCollection = 'ships' | 'bullets' | 'explosions';
-
-export type Destination = { x: number; y: number };
-
 export type EntityType = Player | Invader | Bullet | Explosion;
-
+export type Destination = { x: number; y: number };
+export type BulletProps = { speed: number; shooter: 'player' | 'invader' };
 export type Fn = (...args: any) => any;
 
 export const ship = {

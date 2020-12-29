@@ -1,10 +1,5 @@
-import { EntityCollection, Destination } from './app';
+import { EntityCollection, Destination, BulletProps } from './app';
 import Entity from './entity';
-
-type BulletProps = {
-    speed: number;
-    shooter: 'player' | 'invader';
-};
 
 export default class Bullet extends Entity {
     collection: EntityCollection = 'bullets';
