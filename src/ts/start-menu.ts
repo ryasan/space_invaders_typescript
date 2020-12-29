@@ -33,12 +33,12 @@ export default class StartMenu extends HTMLElement {
             <div class="menu__gif"></div>
             <h1 class="menu__title">Space Invaders</h1>
             <div class="menu__difficulty-container">
-                <h3 class="difficulty__title">Select Difficulty</h3>
                 <ul id="guide-list">
                     <li class="guide"><span>&#8678;</span><span>- Left</span></li>
                     <li class="guide"><span>&#8680;</span><span>- Right</span></li>
                     <li class="guide"><span>SPACEBAR</span><span>- Fire</span></li>
                 </ul>
+                <h3 class="difficulty__title">Select Difficulty</h3>
                 <ul class="menu__difficulty-list">
                     <start-menu-button difficulty="easy"></start-menu-button>
                     <start-menu-button difficulty="normal"></start-menu-button>
