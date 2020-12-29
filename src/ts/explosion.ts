@@ -41,7 +41,6 @@ export default class Explosion extends Entity {
     };
 
     draw = () => {
-        // const copy = this.particles.slice();
         for (let i = 0; i < this.particles.length; i++) {
             const particle = this.particles[i];
 

@@ -12,7 +12,8 @@ import {
     invaderKilled,
     htmlElement,
     sleep,
-    showGameOver
+    showGameOver,
+    isInvader
 } from './app';
 import Entity from './entity';
 import Bullet from './bullet';
@@ -49,7 +50,7 @@ export default class Invader extends Entity {
 
     destroy = async ({ entities }: { entities: EntityType[] }) => {
         entities.forEach(this.game.destroyEntity);
-        if (this.game.entity.ships.every(s => !(s instanceof Invader))) {
+        if (this.game.entity.ships.every(s => !isInvader(s))) {
             await sleep(1000);
             showGameOver(true);
         }

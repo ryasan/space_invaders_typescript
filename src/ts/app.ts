@@ -21,17 +21,6 @@ import Header from './header';
 import Explosion from './explosion';
 import StartMenu, { StartMenuBtn } from './start-menu';
 
-export const [playerKilled, invaderKilled, shoot] = [
-    'https://space-invader-sounds.s3-us-west-1.amazonaws.com/explosion.wav',
-    'https://space-invader-sounds.s3-us-west-1.amazonaws.com/invaderkilled.wav',
-    'https://space-invader-sounds.s3-us-west-1.amazonaws.com/shoot.wav'
-].map(s => new Audio(s));
-
-export const playSound = async (audio: HTMLMediaElement) => {
-    audio.preload = 'none';
-    await audio.play();
-};
-
 export let state: State;
 
 export type Difficulty = 'easy' | 'normal' | 'hard';
@@ -42,48 +31,95 @@ export type Destination = { x: number; y: number };
 
 export type EntityType = Player | Invader | Bullet | Explosion;
 
-export const ship = (() => {
-    const w = 30;
-    const h = 30;
-
-    return {
-        spriteW: 110,
-        spriteH: 110,
-        w: w,
-        h: h,
-        rX: w / 2,
-        rY: h / 2
-    };
-})() as {
-    spriteW: number;
-    spriteH: number;
-    w: number;
-    h: number;
-    rX: number;
-    rY: number;
+export const ship = {
+    spriteW: 110,
+    spriteH: 110,
+    w: 30,
+    h: 30,
+    rX: 30 / 2,
+    rY: 30 / 2
 };
 
-export const bullet = (() => {
-    const w = 3;
-    const h = 6;
+export const bullet = {
+    w: 3,
+    h: 6,
+    rX: 3 / 2,
+    rY: 6 / 2,
+    s: 5
+};
 
-    return {
-        w: w,
-        h: h,
-        rY: h / 2,
-        rX: w / 2,
-        s: 5
-    };
-})() as {
-    w: number;
-    h: number;
-    s: number;
-    rY: number;
-    rX: number;
+export const spriteSheet = Object.assign(new Image(), {
+    src: 'https://i.postimg.cc/YC0dkRm8/sprite-sheet.png'
+});
+
+// prettier-ignore
+export const drawImg = (ctx: CanvasRenderingContext2D, sprite: { x: number; y: number }, destination: { x: number; y: number }) => {
+    ctx.drawImage(spriteSheet, sprite.x, sprite.y, ship.spriteW, ship.spriteH, destination.x, destination.y, ship.w, ship.h);
+};
+
+export const createAudio = (s: string) => {
+    return new Audio(s);
+};
+
+export const playerKilled = createAudio(
+    'https://space-invader-sounds.s3-us-west-1.amazonaws.com/explosion.wav'
+);
+
+export const invaderKilled = createAudio(
+    'https://space-invader-sounds.s3-us-west-1.amazonaws.com/invaderkilled.wav'
+);
+
+export const shoot = createAudio(
+    'https://space-invader-sounds.s3-us-west-1.amazonaws.com/shoot.wav'
+);
+
+export const playSound = async (audio: HTMLMediaElement) => {
+    audio.preload = 'none';
+    await audio.play();
 };
 
 export const sleep = (ms = 0): Promise<void> => {
     return new Promise(resolve => setTimeout(resolve, ms));
+};
+
+export const loadGame = (difficulty = state.difficulty) => {
+    state.setDifficulty(difficulty);
+    state.setIsPaused(true);
+    document.body.innerHTML = `<game-map />`;
+};
+
+export const loadStartMenu = () => {
+    state = new State();
+    document.body.innerHTML = '<start-menu />';
+};
+
+export const htmlElement = (selector: string) => {
+    return document.querySelector(selector) as HTMLElement;
+};
+
+export const showCountDown = () => {
+    htmlElement('#game').appendChild(new CountDown());
+};
+
+export const showGameOver = (isWinner: boolean) => {
+    const game = htmlElement('#game') as Game;
+    htmlElement('#game').appendChild(new GameOver(isWinner, game));
+};
+
+export const getConstructor = (e: any) => {
+    return null !== e ? e.constructor : null;
+};
+
+export const isPlayer = (e: any) => {
+    return getConstructor(e) === Player;
+};
+
+export const isInvader = (e: any) => {
+    return getConstructor(e) === Invader;
+};
+
+export const isBullet = (e: any) => {
+    return getConstructor(e) === Bullet;
 };
 
 export const randomInt = (
@@ -103,52 +139,6 @@ export const randomInt = (
     return num;
 };
 
-export const htmlElement = (selector: string) => {
-    return document.querySelector(selector) as HTMLElement;
-};
-
-const spriteSheet = Object.assign(new Image(), {
-    src: 'https://i.postimg.cc/YC0dkRm8/sprite-sheet.png'
-});
-
-export const drawImg = (
-    ctx: CanvasRenderingContext2D,
-    sprite: { x: number; y: number },
-    destination: { x: number; y: number }
-) => {
-    ctx.drawImage(
-        spriteSheet,
-        sprite.x,
-        sprite.y,
-        ship.spriteW,
-        ship.spriteH,
-        destination.x,
-        destination.y,
-        ship.w,
-        ship.h
-    );
-};
-
-export const loadGame = (difficulty = state.difficulty) => {
-    state.setDifficulty(difficulty);
-    state.setIsPaused(true);
-
-    document.body.innerHTML = `<game-map />`;
-};
-
-export const loadStartMenu = () => {
-    state = new State();
-    document.body.innerHTML = '<start-menu />';
-};
-
-export const showCountDown = () => {
-    htmlElement('#game').appendChild(new CountDown());
-};
-
-export const showGameOver = (isWinner: boolean) => {
-    htmlElement('#game').appendChild(new GameOver(isWinner));
-};
-
 export const isColliding = (a: EntityType, b: EntityType) => {
     return !!(
         a !== b &&
@@ -162,11 +152,12 @@ export const isColliding = (a: EntityType, b: EntityType) => {
 class GameOver extends HTMLElement {
     playAgainBtn: HTMLElement;
     mainMenuBtn: HTMLElement;
-    game = htmlElement('#game') as Game;
+    game: Game;
     text: string;
 
-    constructor (isWinner: boolean) {
+    constructor (isWinner: boolean, game: Game) {
         super();
+        this.game = game;
         this.text = isWinner ? 'YOU WIN' : 'YOU LOST';
 
         this.id = 'modal';
@@ -222,15 +213,13 @@ class CountDown extends HTMLElement {
             await sleep(1000);
         }
 
-        if (!game.entity.ships.find(s => s instanceof Player)) {
-            game.addEntity(
-                new Player({
-                    x: game.canvas.width / 2,
-                    y: game.canvas.height - ship.h
-                })
-            );
+        if (!game.entity.ships.find(s => isPlayer(s))) {
+            const player = new Player({
+                x: game.canvas.width / 2,
+                y: game.canvas.height - ship.h
+            });
+            game.addEntity(player);
         }
-
         this.remove();
         state.setIsPaused(false);
     };
@@ -242,11 +231,7 @@ export class Game extends HTMLElement {
     header: Header;
     reqId = 0;
     frameCount = 0;
-    entity: {
-        bullets: Bullet[];
-        explosions: Explosion[];
-        ships: (Player & Invader)[];
-    };
+    entity: Record<EntityCollection, any[]>;
     scoreCount = 0;
 
     constructor () {
@@ -265,16 +250,15 @@ export class Game extends HTMLElement {
         this.canvas = htmlElement('#canvas') as HTMLCanvasElement;
         this.ctx = this.canvas.getContext('2d') as CanvasRenderingContext2D;
 
+        const player = new Player({
+            x: this.canvas.width / 2,
+            y: this.canvas.height - ship.h - 20
+        });
+
         this.entity = {
             bullets: [],
             explosions: [],
-            ships: [
-                ...Game.createInvaders(),
-                new Player({
-                    x: this.canvas.width / 2,
-                    y: this.canvas.height - ship.h - 20
-                })
-            ] as (Player & Invader)[]
+            ships: [...Game.createInvaders(), player]
         };
     }
 
@@ -314,14 +298,20 @@ export class Game extends HTMLElement {
     };
 
     addEntity = (e: EntityType) => {
-        this.entity[e.collection].push(e as any);
+        this.entity[e.collection].push(e as EntityType);
     };
 
     destroyEntity = (e: EntityType) => {
-        const idx = this.entity[e.collection].indexOf(e as any);
+        const idx = this.entity[e.collection].indexOf(e as EntityType);
         if (idx !== -1) {
             this.entity[e.collection].splice(idx, 1);
         }
+    };
+    getEntities = (): any => {
+        const entities = Object.values(this.entity);
+        return entities.reduce((a: any, v: any) => {
+            return [...a, ...v];
+        }, []);
     };
 
     tick = () => {
@@ -333,12 +323,6 @@ export class Game extends HTMLElement {
         }
 
         this.reqId = window.requestAnimationFrame(this.tick);
-    };
-
-    getEntities = (): any => {
-        return Object.values(this.entity).reduce((a: any, v: any) => {
-            return [...a, ...v];
-        }, []);
     };
 
     update = () => {
@@ -361,12 +345,12 @@ export class Game extends HTMLElement {
         const { ships, bullets } = this.entity;
 
         bullets.forEach((b: Bullet) => {
-            ships.forEach((s: Player | Invader) => {
+            ships.forEach((s: any) => {
                 if (isColliding(s, b)) {
-                    if (s instanceof Invader && b.props.shooter === 'player') {
+                    if (isInvader(s) && b.props.shooter === 'player') {
                         s.invaderDeath.notify({ entities: [s, b] });
                     }
-                    if (s instanceof Player && b.props.shooter === 'invader') {
+                    if (isPlayer(s) && b.props.shooter === 'invader') {
                         s.playerDeath.notify({ entities: [s, b] });
                     }
                 }

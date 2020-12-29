@@ -10,7 +10,8 @@ import {
     shoot,
     playerKilled,
     htmlElement,
-    playSound
+    playSound,
+    isBullet
 } from './app';
 import Entity from './entity';
 import Bullet from './bullet';
@@ -53,12 +54,12 @@ export default class Player extends Entity {
     destroy = async ({ entities }: { entities: EntityType[] }) => {
         entities.forEach(this.game.destroyEntity);
         this.game.getEntities().forEach((e: EntityType) => {
-            if (e instanceof Bullet) {
+            if (isBullet(e)) {
                 this.game.destroyEntity(e);
             }
         });
         await sleep(1000);
-        this.game.header.pause()
+        this.game.header.pause();
     };
 
     update = () => {
