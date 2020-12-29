@@ -35,28 +35,10 @@ export default class Invader extends Entity {
 
     constructor (destination: Destination) {
         super(destination);
-
-        this.invaderDeath.subscribe(
-            this.destroy,
-            this.explode,
-            this.scorePoints
-        );
+        this.invaderDeath.subscribe(this.destroy, this.scorePoints);
     }
 
-    explode = () => {
-        playSound(invaderKilled);
-        this.game.addEntity(new Explosion(this.destination));
-    };
-
-    destroy = async ({ entities }: { entities: EntityType[] }) => {
-        entities.forEach(this.game.destroyEntity);
-        if (this.game.entity.ships.every(s => !isInvader(s))) {
-            await sleep(1000);
-            showGameOver(true);
-        }
-    };
-
-    isBottom = (): boolean => {
+    get isBottom (): boolean {
         const { ships } = this.game.entity;
         const clone = {
             destination: {
@@ -70,6 +52,19 @@ export default class Invader extends Entity {
         return ships.every((s: EntityType) => {
             return !isColliding(s, clone);
         });
+    }
+
+    destroy = async ({ entities }: { entities: EntityType[] }) => {
+        const { addEntity, destroyEntity, entity } = this.game;
+
+        entities.forEach(destroyEntity);
+        addEntity(new Explosion(this.destination));
+        playSound(invaderKilled);
+
+        if (entity.ships.every(s => !isInvader(s))) {
+            await sleep(1000);
+            showGameOver(true);
+        }
     };
 
     hasLoadedBullet = (): boolean => {
@@ -101,7 +96,7 @@ export default class Invader extends Entity {
         this.destination.x += this.speed;
         this.x += this.speed;
 
-        if (this.isBottom()) {
+        if (this.isBottom) {
             // 1 in 300 chance of shooting bullet
             if (this.hasLoadedBullet()) {
                 this.game.addEntity(

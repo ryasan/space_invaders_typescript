@@ -1,10 +1,13 @@
-import { Game, htmlElement } from './app';
+import { Destination, Game, htmlElement } from './app';
 
 export default class Entity {
     game = htmlElement('#game') as Game;
-    destination: { x: number; y: number };
+    livesList = htmlElement('#lives-list');
+    destination: Destination;
+    w = 0;
+    h = 0;
 
-    constructor (destination: { x: number; y: number }) {
+    constructor (destination: Destination) {
         this.destination = destination;
     }
 }

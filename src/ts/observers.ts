@@ -1,4 +1,4 @@
-type Fn = (...args: any) => any;
+import { Fn } from './app';
 
 class Observer {
     observerList: Fn[] = [];

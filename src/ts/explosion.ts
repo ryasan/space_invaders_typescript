@@ -5,32 +5,26 @@ import { Destination } from './app';
 import Particle from './particle';
 
 export default class Explosion extends Entity {
-    collection: EntityCollection = 'explosions';
     particlesPerExplosion = 20;
     particles: Particle[] = [];
-    w = 0;
-    h = 0;
+    collection: EntityCollection = 'explosions';
 
     constructor (destination: Destination) {
         super(destination);
 
         for (let i = 0; i < this.particlesPerExplosion; i++) {
-            this.particles.push(
-                new Particle({
-                    x: this.destination.x + ship.w / 2,
-                    y: this.destination.y + ship.h / 2
-                })
-            );
+            const particle = new Particle({
+                x: this.destination.x + ship.w / 2,
+                y: this.destination.y + ship.h / 2
+            });
+
+            this.particles.push(particle);
         }
     }
 
-    destroy = () => {
-        this.game.destroyEntity(this);
-    };
-
     update = () => {
         if (this.particles.length === 0) {
-            this.destroy();
+            this.game.destroyEntity(this);
             return;
         }
 

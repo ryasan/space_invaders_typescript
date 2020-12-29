@@ -9,9 +9,7 @@ import {
     showGameOver,
     shoot,
     playerKilled,
-    htmlElement,
-    playSound,
-    isBullet
+    playSound
 } from './app';
 import Entity from './entity';
 import Bullet from './bullet';
@@ -31,35 +29,23 @@ export default class Player extends Entity {
 
         this.playerDeath.subscribe(
             this.destroy,
-            this.removeLife,
-            this.explode,
             this.playerDeath.unsubscribeAll
         );
     }
 
-    explode = () => {
+    destroy = ({ entities }: { entities: EntityType[] }) => {
+        const destroyUs = [...entities, ...this.game.entity.bullets];
+
         playSound(playerKilled);
+        destroyUs.forEach(this.game.destroyEntity);
         this.game.addEntity(new Explosion(this.destination));
-    };
 
-    removeLife = () => {
-        const livesList = htmlElement('#lives-list');
-
-        livesList.firstElementChild?.remove();
-        if (livesList.childElementCount <= 0) {
+        this.livesList.firstElementChild?.remove();
+        if (this.livesList.childElementCount <= 0) {
             showGameOver(false);
         }
-    };
 
-    destroy = async ({ entities }: { entities: EntityType[] }) => {
-        entities.forEach(this.game.destroyEntity);
-        this.game.getEntities().forEach((e: EntityType) => {
-            if (isBullet(e)) {
-                this.game.destroyEntity(e);
-            }
-        });
-        await sleep(1000);
-        this.game.header.pause();
+        sleep(750).then(this.game.header.pause);
     };
 
     update = () => {

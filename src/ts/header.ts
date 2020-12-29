@@ -61,13 +61,12 @@ export default class Header extends HTMLElement {
     }
 
     // prettier-ignore
-    renderTime = () => {
+    renderTime = (): void => {
         if (!state.isPaused) this.distance -= 1000;
-
         const minutes = Math.floor((this.distance % (1000 * 60 * 60)) / (1000 * 60));
         const seconds = Math.floor((this.distance % (1000 * 60)) / 1000);
+        
         this.timeLeft.textContent = `${minutes}:${seconds < 10 ? 0 : ''}${seconds}`;
-
         if (!minutes && !seconds) showGameOver(false);
     };
 

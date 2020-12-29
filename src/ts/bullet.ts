@@ -17,10 +17,6 @@ export default class Bullet extends Entity {
         this.props = props;
     }
 
-    destroy = () => {
-        this.game.destroyEntity(this);
-    };
-
     update = () => {
         this.destination.y += this.props.speed;
         if (

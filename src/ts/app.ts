@@ -31,6 +31,8 @@ export type Destination = { x: number; y: number };
 
 export type EntityType = Player | Invader | Bullet | Explosion;
 
+export type Fn = (...args: any) => any;
+
 export const ship = {
     spriteW: 110,
     spriteH: 110,
@@ -229,10 +231,10 @@ export class Game extends HTMLElement {
     ctx: CanvasRenderingContext2D;
     canvas: HTMLCanvasElement;
     header: Header;
-    reqId = 0;
-    frameCount = 0;
     entity: Record<EntityCollection, any[]>;
+    frameCount = 0;
     scoreCount = 0;
+    reqId = 0;
 
     constructor () {
         super();
@@ -240,8 +242,8 @@ export class Game extends HTMLElement {
             <top-header></top-header>
             <canvas
                 id="canvas"
-                width="${this.getSize().w}"
-                height="${this.getSize().h}">
+                width="${this.getSize.w}"
+                height="${this.getSize.h}">
             </canvas>
         `;
 
@@ -274,6 +276,20 @@ export class Game extends HTMLElement {
         return invaders;
     }
 
+    get getSize () {
+        return {
+            w: Math.min(window.innerWidth - 10, 1200),
+            h: Math.min(window.innerHeight - 10, 700)
+        };
+    }
+
+    get getEntities () {
+        const entities = Object.values(this.entity);
+        return entities.reduce((a: any, v: any) => {
+            return [...a, ...v];
+        }, []);
+    }
+
     connectedCallback () {
         this.tick();
         window.addEventListener('resize', this.onResize);
@@ -284,15 +300,8 @@ export class Game extends HTMLElement {
         window.removeEventListener('resize', this.onResize);
     }
 
-    getSize = () => {
-        return {
-            w: Math.min(window.innerWidth - 10, 1200),
-            h: Math.min(window.innerHeight - 10, 700)
-        };
-    };
-
     onResize = () => {
-        const { w, h } = this.getSize();
+        const { w, h } = this.getSize;
         this.canvas.width = w;
         this.canvas.height = h;
     };
@@ -306,12 +315,6 @@ export class Game extends HTMLElement {
         if (idx !== -1) {
             this.entity[e.collection].splice(idx, 1);
         }
-    };
-    getEntities = (): any => {
-        const entities = Object.values(this.entity);
-        return entities.reduce((a: any, v: any) => {
-            return [...a, ...v];
-        }, []);
     };
 
     tick = () => {
@@ -327,7 +330,7 @@ export class Game extends HTMLElement {
 
     update = () => {
         this.checkCollisions();
-        this.getEntities().forEach((entity: EntityType) => {
+        this.getEntities.forEach((entity: EntityType) => {
             entity.update();
         });
     };
@@ -336,7 +339,7 @@ export class Game extends HTMLElement {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.frameCount = (this.frameCount + 1) % 60;
 
-        this.getEntities().forEach((entity: EntityType) => {
+        this.getEntities.forEach((entity: EntityType) => {
             entity.draw(this.frameCount);
         });
     };
@@ -351,7 +354,7 @@ export class Game extends HTMLElement {
                         s.invaderDeath.notify({ entities: [s, b] });
                     }
                     if (isPlayer(s) && b.props.shooter === 'invader') {
-                        s.playerDeath.notify({ entities: [s, b] });
+                        s.playerDeath.notify({ entities: [s] });
                     }
                 }
             });
