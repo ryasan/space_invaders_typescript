@@ -56,21 +56,11 @@ export const drawImg = (ctx: CanvasRenderingContext2D, sprite: { x: number; y: n
     ctx.drawImage(spriteSheet, sprite.x, sprite.y, ship.spriteW, ship.spriteH, destination.x, destination.y, ship.w, ship.h);
 };
 
-export const createAudio = (s: string) => {
-    return new Audio(s);
-};
+export const createAudio = (s: string) => new Audio(s);
 
-export const playerKilled = createAudio(
-    'https://space-invader-sounds.s3-us-west-1.amazonaws.com/explosion.wav'
-);
-
-export const invaderKilled = createAudio(
-    'https://space-invader-sounds.s3-us-west-1.amazonaws.com/invaderkilled.wav'
-);
-
-export const shoot = createAudio(
-    'https://space-invader-sounds.s3-us-west-1.amazonaws.com/shoot.wav'
-);
+export const playerKilled = createAudio('https://space-invader-sounds.s3-us-west-1.amazonaws.com/explosion.wav');
+export const invaderKilled = createAudio('https://space-invader-sounds.s3-us-west-1.amazonaws.com/invaderkilled.wav');
+export const shoot = createAudio('https://space-invader-sounds.s3-us-west-1.amazonaws.com/shoot.wav');
 
 export const playSound = async (audio: HTMLMediaElement) => {
     audio.preload = 'none';
