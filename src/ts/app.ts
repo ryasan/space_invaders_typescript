@@ -4,9 +4,9 @@ window.requestAnimationFrame = (() => {
     return (
         window.requestAnimationFrame ||
         window.webkitRequestAnimationFrame ||
-        window.mozRequestAnimationFrame ||
-        window.oRequestAnimationFrame ||
-        window.msRequestAnimationFrame ||
+        (window as any).mozRequestAnimationFrame ||
+        (window as any).oRequestAnimationFrame ||
+        (window as any).msRequestAnimationFrame ||
         function (callback) {
             window.setTimeout(callback, 1000 / 60);
         }
