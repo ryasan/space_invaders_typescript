@@ -1,31 +1,31 @@
-import { Fn } from './app';
+import {Fn} from './app';
 
 class Observer {
-    observerList: Fn[] = [];
+  observerList: Fn[] = [];
 
-    subscribe = (...fn: Fn[]): void => {
-        this.observerList.push(...fn);
-    };
+  subscribe = (...fn: Fn[]): void => {
+    this.observerList.push(...fn);
+  };
 
-    unsubscribe = (fnToRemove: Fn): void => {
-        this.observerList.filter(fn => fn !== fnToRemove);
-    };
+  unsubscribe = (fnToRemove: Fn): void => {
+    this.observerList.filter((fn) => fn !== fnToRemove);
+  };
 
-    unsubscribeAll = (): void => {
-        this.observerList = [];
-    };
+  unsubscribeAll = (): void => {
+    this.observerList = [];
+  };
 
-    notify = (props?: any): void => {
-        this.observerList.forEach((fn: Fn) => fn(props));
-    };
+  notify = (props?: any): void => {
+    this.observerList.forEach((fn: Fn) => fn(props));
+  };
 }
 
 export default class Subject {
-    observer = new Observer();
+  observer = new Observer();
 
-    observerList = this.observer.observerList;
-    subscribe = this.observer.subscribe;
-    unsubscribe = this.observer.unsubscribe;
-    unsubscribeAll = this.observer.unsubscribeAll;
-    notify = this.observer.notify;
+  observerList = this.observer.observerList;
+  subscribe = this.observer.subscribe;
+  unsubscribe = this.observer.unsubscribe;
+  unsubscribeAll = this.observer.unsubscribeAll;
+  notify = this.observer.notify;
 }
